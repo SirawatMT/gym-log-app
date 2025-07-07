@@ -905,6 +905,7 @@
              <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('per_exercise')">รายท่า</button>
              <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('comparison')">เปรียบเทียบ</button>
              <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('body')">ร่างกาย</button>
+             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('cardio')">🏃 คาร์ดิโอ</button>
         </div>
 
         <div id="analysis-overview" class="analysis-sub-page active">
@@ -958,6 +959,21 @@
                 <h3>กราฟการเปลี่ยนแปลง</h3>
                 <select id="body-stat-select" onchange="renderBodyStatChart(this.value)"></select>
                 <div class="chart-container"><canvas id="bodyStatChart"></canvas></div>
+            </div>
+        </div>
+        
+        <div id="analysis-cardio" class="analysis-sub-page">
+            <div class="card">
+                <h3>ระยะทางและเวลา (แต่ละครั้ง)</h3>
+                <div class="chart-container"><canvas id="cardioDistanceChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Pace (ความเร็วเฉลี่ย)</h3>
+                <div class="chart-container"><canvas id="cardioPaceChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>สรุประยะทางรายสัปดาห์</h3>
+                <div class="chart-container"><canvas id="cardioWeeklySummaryChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -1060,6 +1076,9 @@
     let currentWorkoutLog = {}, personalRecords = {}, bodyStats = [], nextSessionSuggestions = {};
     let currentSessionPRs = [];
     let timerInterval, timeRemaining, audioContext, chartVolume, chartStrength, bodyStatChart, muscleBalanceChart, weeklyVolumeChart, fatigueAnalysisChart, comparisonChart;
+    // --- NEW CHART VARIABLES ---
+    let cardioDistanceChart, cardioPaceChart, cardioWeeklySummaryChart;
+
     let workoutPlans = [], activePlanIndex = 0;
     let userEquipment = { barbellWeight: 20, availablePlates: [20, 15, 10, 5, 2.5, 1.25] };
     const defaultPlan = [{ name: "โปรแกรมเริ่มต้น 4 วัน/สัปดาห์", active: true, days: [ { name: "Upper A (จันทร์)", exercises: [{name: "Incline Dumbbell Press", muscleGroup: "Chest"}, {name: "One-arm Dumbbell Row", muscleGroup: "Back"}, {name: "Dumbbell Lateral Raise", muscleGroup: "Shoulders"}, {name: "Dumbbell Curl", muscleGroup: "Arms"}, {name: "Overhead Triceps Extension", muscleGroup: "Arms"}] }, { name: "Lower A (อังคาร)", exercises: [{name: "Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Romanian Deadlift (RDL)", muscleGroup: "Legs"}, {name: "Hip Thrust", muscleGroup: "Legs"}, {name: "Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (พุธ)", exercises: [] }, { name: "Upper B (พฤหัสฯ)", exercises: [{name: "Flat Dumbbell Press", muscleGroup: "Chest"}, {name: "Pull-up / Band Pull-down", muscleGroup: "Back"}, {name: "Dumbbell Shoulder Press", muscleGroup: "Shoulders"}, {name: "Dumbbell Hammer Curl", muscleGroup: "Arms"}, {name: "Bench Dips", muscleGroup: "Arms"}] }, { name: "Lower B (ศุกร์)", exercises: [{name: "Bulgarian Split Squat", muscleGroup: "Legs"}, {name: "Sumo Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Step-up", muscleGroup: "Legs"}, {name: "Standing Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (เสาร์)", exercises: [] }, { name: "พัก (อาทิตย์)", exercises: [] } ] }];
@@ -1693,7 +1712,6 @@
         document.getElementById('cardio-log-modal').style.display = 'block';
     }
     
-    // --- MODIFIED TO BE FUNCTIONAL ---
     function saveCardioLog() {
         const distanceInput = document.getElementById('cardio-distance');
         const durationInput = document.getElementById('cardio-duration');
@@ -1708,17 +1726,16 @@
             return;
         }
 
-        // Do not start the main workout timer for cardio
-        // if (!workoutStartTime) { startWorkoutTimer(); }
+        if (!workoutStartTime) { startWorkoutTimer(); }
         
         const cardioData = {
-            name: 'Cardio', // Or a more specific name if we add a type selector later
+            name: 'Cardio',
             type: 'cardio',
             distance: distance,
             duration: duration,
             notes: notes,
             muscleGroup: 'Cardio',
-            sets: [] // Keep the sets array for data structure consistency
+            sets: [] 
         };
 
         currentWorkoutLog['Cardio-' + Date.now()] = cardioData;
@@ -1741,25 +1758,12 @@
                     <i data-feather="trending-up"></i> 
                     <span>${cardioData.name}: ${cardioData.distance} กม. ใน ${cardioData.duration} นาที</span>
                 </div>
-                <button class="btn-delete" onclick="deleteCardioLog(this.parentElement.parentElement)"><i data-feather="trash-2"></i></button>
             </div>
             ${cardioData.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px; padding-left: 34px;">📝 ${cardioData.notes}</p>` : ''}
         `;
         exerciseList.insertBefore(card, exerciseList.firstChild);
         feather.replace();
     }
-
-    function deleteCardioLog(cardElement) {
-        if(confirm("คุณแน่ใจหรือไม่ว่าจะลบบันทึกคาร์ดิโอนี้?")) {
-            // This is a simplified deletion. It only removes from view. 
-            // The actual data is removed from history page.
-            // A full implementation would need to find the exact entry in currentWorkoutLog and remove it.
-            // For now, this visual removal is sufficient before a full page reload or history save.
-            cardElement.remove();
-            // A better implementation would be needed if multiple cardio logs are added in one session before saving.
-        }
-    }
-    //---
 
     function saveQuickLog() {
         const exerciseName = document.getElementById('quick-log-exercise').value.trim();
@@ -1983,7 +1987,7 @@
         const todayId = today.toISOString().slice(0, 10);
         let totalVolume = 0;
         const exercisesData = [];
-        Object.keys(currentWorkoutLog).forEach((exKey) => { // Use exKey to avoid conflict
+        Object.keys(currentWorkoutLog).forEach((exKey) => {
             const exLog = currentWorkoutLog[exKey];
             if (exLog && ( (exLog.sets && exLog.sets.length > 0) || exLog.type === 'cardio')) {
                 const exCard = Array.from(document.querySelectorAll('.exercise-card')).find(card => card.querySelector('.exercise-title')?.textContent.startsWith(exLog.name));
@@ -2373,6 +2377,8 @@
                 if(comparisonChart) comparisonChart.destroy();
             } else if (tabName === 'body') {
                 renderBodyStatsPage();
+            } else if (tabName === 'cardio') {
+                generateCardioCharts();
             }
         }
     }
@@ -2385,6 +2391,77 @@
         generateExerciseCharts(document.getElementById('exercise-select').value);
         if(comparisonChart) { comparisonChart.destroy(); }
     }
+
+    // --- NEW CARDIO CHART FUNCTIONS ---
+    function generateCardioCharts() {
+        if (cardioDistanceChart) cardioDistanceChart.destroy();
+        if (cardioPaceChart) cardioPaceChart.destroy();
+        if (cardioWeeklySummaryChart) cardioWeeklySummaryChart.destroy();
+
+        const history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
+        const cardioHistory = history
+            .flatMap(entry => entry.exercises.filter(ex => ex.type === 'cardio').map(ex => ({...ex, date: new Date(entry.isoDate)})))
+            .sort((a,b) => a.date - b.date);
+
+        if (cardioHistory.length > 0) {
+            // Distance/Duration Chart
+            const distanceData = {
+                labels: cardioHistory.map(c => c.date.toLocaleDateString("th-TH", {month:"short", day:"numeric"})),
+                datasets: [
+                    {
+                        label: 'ระยะทาง (กม.)',
+                        data: cardioHistory.map(c => c.distance),
+                        borderColor: 'rgba(3, 218, 198, 1)',
+                        backgroundColor: 'rgba(3, 218, 198, 0.5)',
+                        yAxisID: 'yDistance',
+                    },
+                    {
+                        label: 'ระยะเวลา (นาที)',
+                        data: cardioHistory.map(c => c.duration),
+                        borderColor: 'rgba(187, 134, 252, 1)',
+                        backgroundColor: 'rgba(187, 134, 252, 0.5)',
+                        type: 'line',
+                        yAxisID: 'yDuration',
+                        fill: false
+                    }
+                ]
+            };
+            const ctxDistance = document.getElementById("cardioDistanceChart").getContext("2d");
+            cardioDistanceChart = new Chart(ctxDistance, { type: 'bar', data: distanceData, options: { scales: { yDistance: { position: 'left', title: {display: true, text: 'กม.'} }, yDuration: { position: 'right', title: {display: true, text: 'นาที'}, grid: {drawOnChartArea: false} } } } });
+
+            // Pace Chart
+            const paceData = {
+                labels: cardioHistory.map(c => c.date.toLocaleDateString("th-TH", {month:"short", day:"numeric"})),
+                datasets: [{
+                    label: "Pace (นาที/กม.)",
+                    data: cardioHistory.map(c => c.duration / c.distance),
+                    borderColor: "rgba(255, 215, 0, 1)",
+                    tension: .1,
+                    fill: true,
+                    backgroundColor: 'rgba(255, 215, 0, 0.2)'
+                }]
+            };
+            const ctxPace = document.getElementById("cardioPaceChart").getContext("2d");
+            cardioPaceChart = new Chart(ctxPace, { type: "line", data: paceData, options: { scales: {y: { reverse: true, title: {display: true, text: 'Pace (ยิ่งน้อยยิ่งดี)'}}}} });
+            
+            // Weekly Summary Chart
+            const weeklyCardio = cardioHistory.reduce((acc, entry) => {
+                const week = getWeekNumber(entry.date);
+                if (!acc[week]) acc[week] = 0;
+                acc[week] += entry.distance;
+                return acc;
+            }, {});
+            const weeklyLabels = Object.keys(weeklyCardio).sort().slice(-12);
+            const weeklyData = weeklyLabels.map(label => weeklyCardio[label]);
+            const ctxWeekly = document.getElementById('cardioWeeklySummaryChart').getContext('2d');
+            cardioWeeklySummaryChart = new Chart(ctxWeekly, {
+                type: 'bar',
+                data: { labels: weeklyLabels, datasets: [{ label: 'Total Distance (km)', data: weeklyData, backgroundColor: 'rgba(3, 218, 198, 0.5)', borderColor: 'rgba(3, 218, 198, 1)', borderWidth: 1 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: {display: true, text: 'กม.'} } } }
+            });
+        }
+    }
+    // --- END NEW CARDIO CHART FUNCTIONS ---
 
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -2426,7 +2503,7 @@
         weeklyVolumeChart = new Chart(ctx, {
             type: 'bar',
             data: { labels, datasets: [{ label: 'Total Volume (kg)', data, backgroundColor: 'rgba(3, 218, 198, 0.5)', borderColor: 'rgba(3, 218, 198, 1)', borderWidth: 1 }] },
-            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: {display: true, text: 'kg'} } } }
         });
     }
 
