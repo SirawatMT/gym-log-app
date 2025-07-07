@@ -60,12 +60,14 @@
         h2 { color: var(--secondary-color); }
         .page-title {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* Align items to the right */
             align-items: center;
             gap: 10px;
+            position: relative; /* Needed for pop-up positioning */
         }
         #workout-day-title {
             flex-grow: 1;
+            margin-right: auto; /* Push other items to the right */
         }
         .title-icon-btn, .override-btn {
             font-size: 1.2em;
@@ -87,7 +89,10 @@
             color: var(--text-color);
         }
         .override-btn {
-             font-size: 1em; /* Keep it consistent */
+             font-size: 1.2em; /* Keep it consistent */
+        }
+        .override-btn i {
+             width: 1.2em; height: 1.2em;
         }
         .override-btn.danger-style {
             background-color: var(--danger-color);
@@ -713,6 +718,35 @@
         #finish-workout-btn {
             display: none;
         }
+        /* *** NEW POP-UP MENU STYLES *** */
+        .popup-menu {
+            display: none;
+            position: absolute;
+            top: 55px; /* Position below the title bar */
+            right: 0;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .popup-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+        }
+        .popup-menu-item:hover {
+            background-color: var(--border-color);
+        }
+        .popup-menu-item:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+        /* *** END NEW POP-UP MENU STYLES *** */
 
         /* Calendar Styles */
         #calendar-view {
@@ -812,13 +846,24 @@
     <div id="workout" class="page active">
         <div class="page-title">
             <h1 id="workout-day-title"></h1>
-            <button id="quick-log-btn-top" class="title-icon-btn" onclick="openLogChoiceModal()" title="บันทึกด่วน">
+            <button id="quick-log-btn-top" class="title-icon-btn" onclick="toggleQuickLogMenu()" title="บันทึกด่วน">
                 <i data-feather="zap"></i>
             </button>
             <button id="override-btn" class="override-btn" onclick="showOverrideModal()">
                 <i data-feather="calendar"></i>
             </button>
             <span id="total-duration-display"></span>
+            
+            <div id="quick-log-popup" class="popup-menu">
+                <div class="popup-menu-item" onclick="openQuickLogForm()">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Weight Training</span>
+                </div>
+                <div class="popup-menu-item" onclick="openCardioLogForm()">
+                    <i data-feather="trending-up"></i>
+                    <span>Cardio</span>
+                </div>
+            </div>
         </div>
         <div id="smart-assistant-box"></div>
         <div id="quick-log-form" class="card" style="display: none;">
@@ -997,17 +1042,6 @@
     </div>
 </div>
 
-<div id="log-choice-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal('log-choice-modal')">&times;</span>
-        <h3 style="border:none; margin-top:0;">คุณต้องการบันทึกอะไร?</h3>
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <button class="action-btn primary" onclick="openQuickLogForm()"><i data-feather="bar-chart-2"></i> Weight Training</button>
-            <button class="action-btn secondary" onclick="openCardioLogForm()"><i data-feather="trending-up"></i> Cardio</button>
-        </div>
-    </div>
-</div>
-
 <div id="cardio-log-modal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeModal('cardio-log-modal')">&times;</span>
@@ -1067,6 +1101,14 @@
         document.getElementById('exercise-select').addEventListener('change', (e) => generateExerciseCharts(e.target.value));
         document.getElementById('restore-file-input').addEventListener('change', handleRestoreFile);
         feather.replace();
+        // Close pop-up if clicked outside
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('quick-log-popup');
+            const button = document.getElementById('quick-log-btn-top');
+            if (popup && button && !popup.contains(event.target) && !button.contains(event.target)) {
+                popup.style.display = 'none';
+            }
+        });
     });
 
     function applyTheme() {
@@ -1330,10 +1372,10 @@
         if (forceDayIndex === -1) {
             const overrideBtn = document.getElementById('override-btn');
             overrideBtn.style.display = 'inline-flex';
-            const overrideBtnSpan = overrideBtn.querySelector('span');
-            if (overrideBtnSpan) overrideBtnSpan.textContent = 'เลือกโปรแกรมอื่น';
+            overrideBtn.innerHTML = '<i data-feather="calendar"></i>';
             overrideBtn.onclick = showOverrideModal;
             overrideBtn.classList.remove('danger-style');
+            feather.replace();
         }
         document.getElementById('finish-workout-btn').style.display = 'none';
         document.getElementById('quick-log-btn-top').style.display = 'inline-flex';
@@ -1374,7 +1416,7 @@
         document.getElementById('smart-assistant-box').innerHTML = '';
         renderWorkoutForDay(dayIndex, true);
         const overrideBtn = document.getElementById('override-btn');
-        overrideBtn.innerHTML = '<i data-feather="x-circle"></i>'; // Change to a cancel icon
+        overrideBtn.innerHTML = '<i data-feather="x-circle"></i>';
         overrideBtn.onclick = revertToOriginalWorkout;
         overrideBtn.classList.add('danger-style');
         feather.replace();
@@ -1394,15 +1436,15 @@
     function renderRestDayCard(currentDayIndex) {
         const exerciseList = document.getElementById('exercise-list');
         exerciseList.innerHTML = '';
-        document.getElementById('quick-log-btn-top').style.display = 'none'; // Hide freestyle button on top
-        document.getElementById('override-btn').style.display = 'none'; // Hide override button
+        document.getElementById('quick-log-btn-top').style.display = 'none'; 
+        document.getElementById('override-btn').style.display = 'none';
 
         exerciseList.innerHTML = `
             <div class="rest-day-card" id="rest-day-card">
                 <h2><i data-feather="coffee"></i> วันพักผ่อน</h2>
                 <p>พักผ่อนให้เต็มที่ หรือถ้าอยากจะขยับร่างกายเบาๆ ก็ทำได้เลย</p>
                 <div class="rest-day-actions">
-                     <button class="action-btn neutral" onclick="openLogChoiceModal()">
+                     <button class="action-btn neutral" onclick="toggleQuickLogMenu()">
                         <i data-feather="zap"></i> บันทึกกิจกรรม
                      </button>
                 </div>
@@ -1625,14 +1667,19 @@
         return null;
     }
     
-    // --- MODIFIED LOGIC FOR QUICK LOG ---
-    function openLogChoiceModal() {
-        document.getElementById('log-choice-modal').style.display = 'block';
-        feather.replace();
+    // --- NEW LOGIC FOR POP-UP MENU ---
+    function toggleQuickLogMenu() {
+        const popup = document.getElementById('quick-log-popup');
+        if (popup.style.display === 'block') {
+            popup.style.display = 'none';
+        } else {
+            popup.style.display = 'block';
+            feather.replace();
+        }
     }
-
+    
     function openQuickLogForm() {
-        closeModal('log-choice-modal');
+        hideQuickLogMenu();
         const form = document.getElementById('quick-log-form');
         form.style.display = 'block';
     }
@@ -1642,8 +1689,12 @@
         form.style.display = 'none';
     }
 
+    function hideQuickLogMenu() {
+        document.getElementById('quick-log-popup').style.display = 'none';
+    }
+
     function openCardioLogForm() {
-        closeModal('log-choice-modal');
+        hideQuickLogMenu();
         document.getElementById('cardio-log-modal').style.display = 'block';
     }
     
