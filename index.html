@@ -89,7 +89,7 @@
             color: var(--text-color);
         }
         .override-btn {
-             font-size: 1.2em; /* Keep it consistent */
+             font-size: 1.2em;
         }
         .override-btn i {
              width: 1.2em; height: 1.2em;
@@ -671,7 +671,7 @@
             border-radius: 4px;
             animation: fadeIn 0.5s;
         }
-        .exercise-card.freestyle {
+        .exercise-card.freestyle, .exercise-card.cardio {
             border-left: 5px solid var(--success-color);
         }
         .rest-day-card {
@@ -718,11 +718,10 @@
         #finish-workout-btn {
             display: none;
         }
-        /* *** NEW POP-UP MENU STYLES *** */
         .popup-menu {
             display: none;
             position: absolute;
-            top: 55px; /* Position below the title bar */
+            top: 55px;
             right: 0;
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
@@ -746,7 +745,6 @@
         .popup-menu-item:not(:last-child) {
             border-bottom: 1px solid var(--border-color);
         }
-        /* *** END NEW POP-UP MENU STYLES *** */
 
         /* Calendar Styles */
         #calendar-view {
@@ -1101,7 +1099,6 @@
         document.getElementById('exercise-select').addEventListener('change', (e) => generateExerciseCharts(e.target.value));
         document.getElementById('restore-file-input').addEventListener('change', handleRestoreFile);
         feather.replace();
-        // Close pop-up if clicked outside
         document.addEventListener('click', function(event) {
             const popup = document.getElementById('quick-log-popup');
             const button = document.getElementById('quick-log-btn-top');
@@ -1667,15 +1664,18 @@
         return null;
     }
     
-    // --- NEW LOGIC FOR POP-UP MENU ---
+    // --- MODIFIED LOGIC FOR QUICK LOG & POP-UP MENU ---
     function toggleQuickLogMenu() {
         const popup = document.getElementById('quick-log-popup');
+        popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
         if (popup.style.display === 'block') {
-            popup.style.display = 'none';
-        } else {
-            popup.style.display = 'block';
             feather.replace();
         }
+    }
+
+    function hideQuickLogMenu() {
+        const popup = document.getElementById('quick-log-popup');
+        if (popup) popup.style.display = 'none';
     }
     
     function openQuickLogForm() {
@@ -1687,10 +1687,6 @@
     function hideQuickLogForm() {
         const form = document.getElementById('quick-log-form');
         form.style.display = 'none';
-    }
-
-    function hideQuickLogMenu() {
-        document.getElementById('quick-log-popup').style.display = 'none';
     }
 
     function openCardioLogForm() {
@@ -2067,7 +2063,7 @@
                     return `<div id="history-ex-${index}-${exIndex}" style="padding: 10px 0;">
                                 <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
                                     <i data-feather="trending-up"></i> 
-                                    <span>${ex.name}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
+                                    <span>${ex.name || 'Cardio'}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
                                 </div>
                                 ${ex.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px; margin-left: 34px;">📝 ${ex.notes}</p>` : ''}
                            </div>`;
