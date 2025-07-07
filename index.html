@@ -1619,11 +1619,18 @@
 
     // --- NEW FUNCTIONS FOR MODALS ---
     function openQuickLogForm() {
-        closeModal('log-choice-modal');
-        const form = document.getElementById('quick-log-form');
-        form.style.display = 'block';
-        // You might want to adjust the main toggle button's appearance here if needed
-    }
+    closeModal('log-choice-modal');
+    const form = document.getElementById('quick-log-form');
+    const btn = document.getElementById('toggle-quick-log-btn');
+
+    form.style.display = 'block';
+
+    // --- เพิ่มโค้ด 3 บรรทัดนี้เข้าไป ---
+    btn.innerHTML = '<i data-feather="x"></i>ยกเลิกบันทึกด่วน';
+    btn.classList.remove('neutral');
+    btn.classList.add('danger');
+    feather.replace();
+}
 
     function openCardioLogForm() {
         closeModal('log-choice-modal');
