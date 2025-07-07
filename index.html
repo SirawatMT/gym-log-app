@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Gym-Log Pro (AI Coach Edition)</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
@@ -66,23 +67,27 @@
         #workout-day-title {
             flex-grow: 1;
         }
-        .override-btn {
-            font-size: 0.8em;
-            padding: 6px 12px;
-            border-radius: 20px;
+        .title-icon-btn, .override-btn {
+            font-size: 1.2em;
             background-color: var(--card-color);
             border: 1px solid var(--border-color);
             color: var(--text-secondary-color);
             cursor: pointer;
-            white-space: nowrap;
             transition: all 0.2s;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .override-btn:hover {
+        .title-icon-btn:hover, .override-btn:hover {
             background-color: var(--border-color);
             color: var(--text-color);
+        }
+        .override-btn {
+             font-size: 1em; /* Keep it consistent */
         }
         .override-btn.danger-style {
             background-color: var(--danger-color);
@@ -97,6 +102,7 @@
             padding: 4px 8px;
             border-radius: 10px;
             border: 1px solid var(--border-color);
+            flex-shrink: 0;
         }
         h2 .back-button {
             font-size: 0.8em;
@@ -806,7 +812,12 @@
     <div id="workout" class="page active">
         <div class="page-title">
             <h1 id="workout-day-title"></h1>
-            <button id="override-btn" class="override-btn" onclick="showOverrideModal()"><i data-feather="calendar"></i><span>เลือกโปรแกรมอื่น</span></button>
+            <button id="quick-log-btn-top" class="title-icon-btn" onclick="openLogChoiceModal()" title="บันทึกด่วน">
+                <i data-feather="zap"></i>
+            </button>
+            <button id="override-btn" class="override-btn" onclick="showOverrideModal()">
+                <i data-feather="calendar"></i>
+            </button>
             <span id="total-duration-display"></span>
         </div>
         <div id="smart-assistant-box"></div>
@@ -820,10 +831,12 @@
                     <input type="tel" pattern="[0-9]*" id="quick-log-reps" placeholder="จำนวนครั้ง" class="text-input">
                 </div>
             </div>
-            <button class="action-btn success" onclick="saveQuickLog()"><i data-feather="plus-circle"></i>บันทึก</button>
+            <div style="display:flex; gap: 10px;">
+                <button class="action-btn neutral" style="background-color: var(--card-color); color: var(--text-color); border: 1px solid var(--border-color);" onclick="hideQuickLogForm()">ยกเลิก</button>
+                <button class="action-btn success" onclick="saveQuickLog()">บันทึก</button>
+            </div>
         </div>
         <div id="exercise-list"></div>
-        <button id="toggle-quick-log-btn" class="action-btn neutral" onclick="toggleQuickLogForm()"><i data-feather="zap"></i>บันทึกด่วน (Freestyle)</button>
         <button id="finish-workout-btn" class="action-btn success" onclick="showWorkoutSummary()"><i data-feather="check-circle"></i>จบการฝึก</button>
     </div>
     
@@ -1316,13 +1329,16 @@
     function setupTodayWorkout(forceDayIndex = -1) {
         if (forceDayIndex === -1) {
             const overrideBtn = document.getElementById('override-btn');
+            overrideBtn.style.display = 'inline-flex';
             const overrideBtnSpan = overrideBtn.querySelector('span');
             if (overrideBtnSpan) overrideBtnSpan.textContent = 'เลือกโปรแกรมอื่น';
             overrideBtn.onclick = showOverrideModal;
             overrideBtn.classList.remove('danger-style');
         }
         document.getElementById('finish-workout-btn').style.display = 'none';
-        document.getElementById('toggle-quick-log-btn').style.display = 'flex';
+        document.getElementById('quick-log-btn-top').style.display = 'inline-flex';
+        document.getElementById('quick-log-form').style.display = 'none';
+
         try {
             currentSessionPRs = [];
             const today = new Date();
@@ -1358,10 +1374,10 @@
         document.getElementById('smart-assistant-box').innerHTML = '';
         renderWorkoutForDay(dayIndex, true);
         const overrideBtn = document.getElementById('override-btn');
-        const overrideBtnSpan = overrideBtn.querySelector('span');
-        if(overrideBtnSpan) overrideBtnSpan.textContent = 'กลับไปโปรแกรมเดิม';
+        overrideBtn.innerHTML = '<i data-feather="x-circle"></i>'; // Change to a cancel icon
         overrideBtn.onclick = revertToOriginalWorkout;
         overrideBtn.classList.add('danger-style');
+        feather.replace();
     }
 
     function revertToOriginalWorkout() {
@@ -1378,18 +1394,16 @@
     function renderRestDayCard(currentDayIndex) {
         const exerciseList = document.getElementById('exercise-list');
         exerciseList.innerHTML = '';
-        document.getElementById('toggle-quick-log-btn').style.display = 'none';
-        
+        document.getElementById('quick-log-btn-top').style.display = 'none'; // Hide freestyle button on top
+        document.getElementById('override-btn').style.display = 'none'; // Hide override button
+
         exerciseList.innerHTML = `
             <div class="rest-day-card" id="rest-day-card">
                 <h2><i data-feather="coffee"></i> วันพักผ่อน</h2>
                 <p>พักผ่อนให้เต็มที่ หรือถ้าอยากจะขยับร่างกายเบาๆ ก็ทำได้เลย</p>
                 <div class="rest-day-actions">
-                     <button class="action-btn neutral" onclick="toggleQuickLogForm()">
-                        <i data-feather="zap"></i> บันทึกด่วน (Freestyle)
-                     </button>
-                     <button class="action-btn secondary" onclick="showOverrideModal()">
-                        <i data-feather="calendar"></i> เลือกโปรแกรมอื่น
+                     <button class="action-btn neutral" onclick="openLogChoiceModal()">
+                        <i data-feather="zap"></i> บันทึกกิจกรรม
                      </button>
                 </div>
             </div>`;
@@ -1611,26 +1625,22 @@
         return null;
     }
     
-    // --- MODIFIED TO SHOW CHOICE MODAL ---
-    function toggleQuickLogForm() {
+    // --- MODIFIED LOGIC FOR QUICK LOG ---
+    function openLogChoiceModal() {
         document.getElementById('log-choice-modal').style.display = 'block';
         feather.replace();
     }
 
-    // --- NEW FUNCTIONS FOR MODALS ---
     function openQuickLogForm() {
-    closeModal('log-choice-modal');
-    const form = document.getElementById('quick-log-form');
-    const btn = document.getElementById('toggle-quick-log-btn');
+        closeModal('log-choice-modal');
+        const form = document.getElementById('quick-log-form');
+        form.style.display = 'block';
+    }
 
-    form.style.display = 'block';
-
-    // --- เพิ่มโค้ด 3 บรรทัดนี้เข้าไป ---
-    btn.innerHTML = '<i data-feather="x"></i>ยกเลิกบันทึกด่วน';
-    btn.classList.remove('neutral');
-    btn.classList.add('danger');
-    feather.replace();
-}
+    function hideQuickLogForm() {
+        const form = document.getElementById('quick-log-form');
+        form.style.display = 'none';
+    }
 
     function openCardioLogForm() {
         closeModal('log-choice-modal');
@@ -1642,6 +1652,37 @@
         closeModal('cardio-log-modal');
     }
 
+    function saveQuickLog() {
+        const exerciseName = document.getElementById('quick-log-exercise').value.trim();
+        const muscleGroup = document.getElementById('quick-log-muscle-group').value;
+        const weightStr = document.getElementById('quick-log-weight').value;
+        const repsStr = document.getElementById('quick-log-reps').value;
+        if (!exerciseName || !weightStr || !repsStr) {
+            alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+            return;
+        }
+        const weight = parseFloat(weightStr);
+        const reps = parseInt(repsStr);
+        if (isNaN(weight) || isNaN(reps)) {
+            alert("กรุณากรอกน้ำหนักและจำนวนครั้งให้เป็นตัวเลข");
+            return;
+        }
+        if (!currentWorkoutLog[exerciseName]) {
+            currentWorkoutLog[exerciseName] = { sets: [], notes: '', muscleGroup: muscleGroup };
+        }
+        const estimated1RM = calculate1RM(weight, reps);
+        const newSet = { weight: weight, reps: reps, rpe: "-", e1rm: estimated1RM };
+        checkAndSavePR(exerciseName, weight, reps);
+        currentWorkoutLog[exerciseName].sets.push(newSet);
+        if (!workoutStartTime) { startWorkoutTimer(); }
+        saveWorkoutToHistory();
+        renderFreestyleLog(exerciseName, newSet);
+        document.getElementById('quick-log-exercise').value = '';
+        document.getElementById('quick-log-weight').value = '';
+        document.getElementById('quick-log-reps').value = '';
+        hideQuickLogForm();
+    }
+    
     function showPage(pageName) {
         document.querySelectorAll(".page, .tab-button").forEach(el => el.classList.remove("active"));
         document.getElementById(pageName).classList.add("active");
@@ -2429,7 +2470,7 @@
         const selects = document.querySelectorAll('#quick-log-muscle-group');
         let optionsHTML = '';
         for (const key in muscleGroups) {
-            if (key !== 'Cardio') { // Exclude Cardio from this specific dropdown
+            if (key !== 'Cardio') { 
                 optionsHTML += `<option value="${key}">${muscleGroups[key]}</option>`;
             }
         }
