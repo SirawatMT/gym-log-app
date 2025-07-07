@@ -1076,9 +1076,7 @@
     let currentWorkoutLog = {}, personalRecords = {}, bodyStats = [], nextSessionSuggestions = {};
     let currentSessionPRs = [];
     let timerInterval, timeRemaining, audioContext, chartVolume, chartStrength, bodyStatChart, muscleBalanceChart, weeklyVolumeChart, fatigueAnalysisChart, comparisonChart;
-    // --- NEW CHART VARIABLES ---
     let cardioDistanceChart, cardioPaceChart, cardioWeeklySummaryChart;
-
     let workoutPlans = [], activePlanIndex = 0;
     let userEquipment = { barbellWeight: 20, availablePlates: [20, 15, 10, 5, 2.5, 1.25] };
     const defaultPlan = [{ name: "โปรแกรมเริ่มต้น 4 วัน/สัปดาห์", active: true, days: [ { name: "Upper A (จันทร์)", exercises: [{name: "Incline Dumbbell Press", muscleGroup: "Chest"}, {name: "One-arm Dumbbell Row", muscleGroup: "Back"}, {name: "Dumbbell Lateral Raise", muscleGroup: "Shoulders"}, {name: "Dumbbell Curl", muscleGroup: "Arms"}, {name: "Overhead Triceps Extension", muscleGroup: "Arms"}] }, { name: "Lower A (อังคาร)", exercises: [{name: "Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Romanian Deadlift (RDL)", muscleGroup: "Legs"}, {name: "Hip Thrust", muscleGroup: "Legs"}, {name: "Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (พุธ)", exercises: [] }, { name: "Upper B (พฤหัสฯ)", exercises: [{name: "Flat Dumbbell Press", muscleGroup: "Chest"}, {name: "Pull-up / Band Pull-down", muscleGroup: "Back"}, {name: "Dumbbell Shoulder Press", muscleGroup: "Shoulders"}, {name: "Dumbbell Hammer Curl", muscleGroup: "Arms"}, {name: "Bench Dips", muscleGroup: "Arms"}] }, { name: "Lower B (ศุกร์)", exercises: [{name: "Bulgarian Split Squat", muscleGroup: "Legs"}, {name: "Sumo Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Step-up", muscleGroup: "Legs"}, {name: "Standing Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (เสาร์)", exercises: [] }, { name: "พัก (อาทิตย์)", exercises: [] } ] }];
@@ -1725,8 +1723,6 @@
             alert("กรุณากรอกระยะทางและเวลาให้เป็นตัวเลขที่ถูกต้อง");
             return;
         }
-
-        if (!workoutStartTime) { startWorkoutTimer(); }
         
         const cardioData = {
             name: 'Cardio',
@@ -2212,7 +2208,7 @@
         let history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
         const entry = history[historyIndex];
         const exerciseToDelete = entry.exercises[exerciseIndex];
-        if (confirm(`คุณแน่ใจหรือไม่ที่จะลบข้อมูลท่า "${exerciseToDelete.name}" ทั้งหมดออกจากประวัติวันนี้?`)) {
+        if (confirm(`คุณแน่ใจหรือไม่ที่จะลบข้อมูลท่า "${exerciseToDelete.name || 'Cardio'}" ทั้งหมดออกจากประวัติวันนี้?`)) {
             const deletedVolume = exerciseToDelete.volume || 0;
             entry.exercises.splice(exerciseIndex, 1);
             entry.totalVolume -= deletedVolume;
@@ -2392,7 +2388,6 @@
         if(comparisonChart) { comparisonChart.destroy(); }
     }
 
-    // --- NEW CARDIO CHART FUNCTIONS ---
     function generateCardioCharts() {
         if (cardioDistanceChart) cardioDistanceChart.destroy();
         if (cardioPaceChart) cardioPaceChart.destroy();
@@ -2404,7 +2399,6 @@
             .sort((a,b) => a.date - b.date);
 
         if (cardioHistory.length > 0) {
-            // Distance/Duration Chart
             const distanceData = {
                 labels: cardioHistory.map(c => c.date.toLocaleDateString("th-TH", {month:"short", day:"numeric"})),
                 datasets: [
@@ -2429,7 +2423,6 @@
             const ctxDistance = document.getElementById("cardioDistanceChart").getContext("2d");
             cardioDistanceChart = new Chart(ctxDistance, { type: 'bar', data: distanceData, options: { scales: { yDistance: { position: 'left', title: {display: true, text: 'กม.'} }, yDuration: { position: 'right', title: {display: true, text: 'นาที'}, grid: {drawOnChartArea: false} } } } });
 
-            // Pace Chart
             const paceData = {
                 labels: cardioHistory.map(c => c.date.toLocaleDateString("th-TH", {month:"short", day:"numeric"})),
                 datasets: [{
@@ -2444,7 +2437,6 @@
             const ctxPace = document.getElementById("cardioPaceChart").getContext("2d");
             cardioPaceChart = new Chart(ctxPace, { type: "line", data: paceData, options: { scales: {y: { reverse: true, title: {display: true, text: 'Pace (ยิ่งน้อยยิ่งดี)'}}}} });
             
-            // Weekly Summary Chart
             const weeklyCardio = cardioHistory.reduce((acc, entry) => {
                 const week = getWeekNumber(entry.date);
                 if (!acc[week]) acc[week] = 0;
@@ -2461,7 +2453,6 @@
             });
         }
     }
-    // --- END NEW CARDIO CHART FUNCTIONS ---
 
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
