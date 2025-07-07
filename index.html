@@ -1664,7 +1664,6 @@
         return null;
     }
     
-    // --- MODIFIED LOGIC FOR QUICK LOG & POP-UP MENU ---
     function toggleQuickLogMenu() {
         const popup = document.getElementById('quick-log-popup');
         popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
@@ -1694,9 +1693,56 @@
         document.getElementById('cardio-log-modal').style.display = 'block';
     }
     
+    // --- MODIFIED TO BE FUNCTIONAL ---
     function saveCardioLog() {
-        alert("ฟังก์ชันบันทึกคาร์ดิโอจะถูกสร้างในขั้นตอนถัดไปครับ");
+        const distanceInput = document.getElementById('cardio-distance');
+        const durationInput = document.getElementById('cardio-duration');
+        const notesInput = document.getElementById('cardio-notes');
+
+        const distance = parseFloat(distanceInput.value);
+        const duration = parseInt(durationInput.value);
+        const notes = notesInput.value.trim();
+
+        if (isNaN(distance) || isNaN(duration) || distance <= 0 || duration <= 0) {
+            alert("กรุณากรอกระยะทางและเวลาให้เป็นตัวเลขที่ถูกต้อง");
+            return;
+        }
+
+        if (!workoutStartTime) { startWorkoutTimer(); }
+        
+        const cardioData = {
+            name: 'Cardio',
+            type: 'cardio',
+            distance: distance,
+            duration: duration,
+            notes: notes,
+            muscleGroup: 'Cardio',
+            sets: [] 
+        };
+
+        currentWorkoutLog['Cardio-' + Date.now()] = cardioData;
+        saveWorkoutToHistory();
+        renderCardioLogInPage(cardioData);
+
+        distanceInput.value = '';
+        durationInput.value = '';
+        notesInput.value = '';
         closeModal('cardio-log-modal');
+    }
+    
+    function renderCardioLogInPage(cardioData) {
+        const exerciseList = document.getElementById('exercise-list');
+        const card = document.createElement('div');
+        card.className = 'card exercise-card cardio';
+        card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
+                <i data-feather="trending-up"></i> 
+                <span>${cardioData.name}: ${cardioData.distance} กม. ใน ${cardioData.duration} นาที</span>
+            </div>
+            ${cardioData.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px; padding-left: 34px;">📝 ${cardioData.notes}</p>` : ''}
+        `;
+        exerciseList.insertBefore(card, exerciseList.firstChild);
+        feather.replace();
     }
 
     function saveQuickLog() {
@@ -1935,7 +1981,7 @@
                     totalVolume += exerciseVolume;
                 }
                 
-                exercisesData.push({ name: exName, volume: exerciseVolume, notes: notes, sets: exLog.sets, muscleGroup: exLog.muscleGroup, type: exLog.type, distance: exLog.distance, duration: exLog.duration });
+                exercisesData.push({ name: exLog.name, volume: exerciseVolume, notes: notes, sets: exLog.sets, muscleGroup: exLog.muscleGroup, type: exLog.type, distance: exLog.distance, duration: exLog.duration });
             }
         });
         if (exercisesData.length === 0) {
@@ -2061,9 +2107,12 @@
             let exercisesHTML = entry.exercises.map((ex, exIndex) => {
                 if (ex.type === 'cardio') {
                     return `<div id="history-ex-${index}-${exIndex}" style="padding: 10px 0;">
-                                <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
-                                    <i data-feather="trending-up"></i> 
-                                    <span>${ex.name || 'Cardio'}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
+                                        <i data-feather="trending-up"></i> 
+                                        <span>${ex.name || 'Cardio'}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
+                                    </div>
+                                    <button class="btn-delete" onclick="deleteExerciseFromHistory(${index}, ${exIndex})"><i data-feather="trash-2"></i></button>
                                 </div>
                                 ${ex.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px; margin-left: 34px;">📝 ${ex.notes}</p>` : ''}
                            </div>`;
