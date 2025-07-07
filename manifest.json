@@ -1,0 +1,21 @@
+{
+  "name": "Gym-Log Pro",
+  "short_name": "GymLog",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#03dac6",
+  "description": "AI-powered gym logging application.",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/example_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.imgur.com/example_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
