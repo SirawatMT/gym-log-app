@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Gym-Log Pro (AI Coach Edition)</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -349,7 +348,13 @@
             font-family:inherit;
             font-size:.9em;
         }
-        body.light-mode .log-input input, body.light-mode .log-input select, body.light-mode .text-input, body.light-mode textarea, body.light-mode .util-btn, body.light-mode #history-search, body.light-mode .add-exercise-form input, body.light-mode .add-exercise-form select, body.light-mode #compare-exercise-select {
+        .modal-content .notes-input {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        body.light-mode .log-input input, body.light-mode .log-input select, body.light-mode .text-input, body.light-mode textarea, body.light-mode .util-btn, body.light-mode #history-search, body.light-mode .add-exercise-form input, body.light-mode .add-exercise-form select, body.light-mode #compare-exercise-select, body.light-mode .modal-content .notes-input {
             background-color: #f0f2f5;
         }
         .tab-buttons{
@@ -806,13 +811,13 @@
         </div>
         <div id="smart-assistant-box"></div>
         <div id="quick-log-form" class="card" style="display: none;">
-            <h3>บันทึกด่วน (Freestyle)</h3>
+            <h3>บันทึกด่วน (Weight Training)</h3>
             <div class="log-input" style="flex-direction: column; gap:10px;">
                 <input type="text" id="quick-log-exercise" placeholder="ชื่อท่าออกกำลังกาย" class="text-input">
                 <select id="quick-log-muscle-group"></select>
                 <div style="display: flex; gap: 10px;">
-                    <input type="number" id="quick-log-weight" placeholder="น้ำหนัก (kg)" class="text-input">
-                    <input type="number" id="quick-log-reps" placeholder="จำนวนครั้ง" class="text-input">
+                    <input type="tel" pattern="[0-9.]*" id="quick-log-weight" placeholder="น้ำหนัก (kg)" class="text-input">
+                    <input type="tel" pattern="[0-9]*" id="quick-log-reps" placeholder="จำนวนครั้ง" class="text-input">
                 </div>
             </div>
             <button class="action-btn success" onclick="saveQuickLog()"><i data-feather="plus-circle"></i>บันทึก</button>
@@ -883,10 +888,13 @@
             <div class="card">
                 <h3>บันทึกข้อมูลร่างกายวันนี้</h3>
                 <div class="stat-input-group">
-                    <input type="number" id="stat-weight" placeholder="น้ำหนักตัว (kg)"><input type="number" id="stat-bf" placeholder="% ไขมัน">
+                    <input type="tel" pattern="[0-9.]*" id="stat-weight" placeholder="น้ำหนักตัว (kg)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-bf" placeholder="% ไขมัน">
                 </div>
                  <div class="stat-input-group" style="margin-top:10px;">
-                    <input type="number" id="stat-chest" placeholder="รอบอก (cm)"><input type="number" id="stat-waist" placeholder="รอบเอว (cm)"><input type="number" id="stat-arm" placeholder="รอบแขน (cm)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-chest" placeholder="รอบอก (cm)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-waist" placeholder="รอบเอว (cm)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-arm" placeholder="รอบแขน (cm)">
                 </div>
                 <button class="action-btn success" onclick="saveBodyStats()"><i data-feather="save"></i>บันทึกข้อมูล</button>
             </div>
@@ -909,7 +917,7 @@
             <h3>โรงเก็บอุปกรณ์ (Home Gym)</h3>
             <p style="opacity:0.8; font-size:0.9em;">กำหนดค่าน้ำหนักแกนและแผ่นน้ำหนักที่คุณมี เพื่อให้ตัวช่วยคำนวณ ⚖️ ทำงานได้แม่นยำสำหรับคุณ</p>
             <div class="log-input" style="flex-direction: column; gap: 15px;">
-                <input type="number" id="equipment-barbell-weight" placeholder="น้ำหนักแกนเปล่า (kg)">
+                <input type="tel" pattern="[0-9.]*" id="equipment-barbell-weight" placeholder="น้ำหนักแกนเปล่า (kg)">
                 <input type="text" id="equipment-plates" placeholder="แผ่นน้ำหนักที่มี (เช่น 10, 5, 2.5, 1.25)">
             </div>
             <button class="action-btn success" onclick="saveEquipmentSettings()"><i data-feather="save"></i>บันทึกอุปกรณ์</button>
@@ -917,12 +925,6 @@
 
         <div class="card">
             <h3>สำรอง/นำเข้าข้อมูล</h3>
-        <div class="card" id="notifications-card">
-    <h3>การแจ้งเตือนการฝึก</h3>
-    <p style="opacity:0.8; font-size:0.9em;">เปิดใช้งานเพื่อรับการแจ้งเตือนเมื่อถึงเวลาออกกำลังกายตามที่คุณกำหนด</p>
-    <div id="notifications-setup">
-        </div>
-        </div>    
             <p style="opacity:0.8; font-size:0.9em;">วิธีที่แนะนำ: สำรองข้อมูลเป็นไฟล์เพื่อความปลอดภัยและป้องกันข้อมูลผิดพลาด</p>
             <button class="action-btn secondary" onclick="backupDataToFile()"><i data-feather="download"></i>สำรองข้อมูลเป็นไฟล์</button>
             <button class="action-btn success" onclick="document.getElementById('restore-file-input').click();"><i data-feather="upload"></i>นำเข้าข้อมูลจากไฟล์</button>
@@ -982,6 +984,31 @@
     </div>
 </div>
 
+<div id="log-choice-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('log-choice-modal')">&times;</span>
+        <h3 style="border:none; margin-top:0;">คุณต้องการบันทึกอะไร?</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="action-btn primary" onclick="openQuickLogForm()"><i data-feather="bar-chart-2"></i> Weight Training</button>
+            <button class="action-btn secondary" onclick="openCardioLogForm()"><i data-feather="trending-up"></i> Cardio</button>
+        </div>
+    </div>
+</div>
+
+<div id="cardio-log-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('cardio-log-modal')">&times;</span>
+        <h3 style="border:none; margin-top:0;">บันทึกกิจกรรม Cardio</h3>
+        <div class="log-input" style="flex-direction: column; gap:15px;">
+            <input type="tel" pattern="[0-9.]*" id="cardio-distance" placeholder="ระยะทาง (กม.)" class="text-input">
+            <input type="tel" pattern="[0-9]*" id="cardio-duration" placeholder="ระยะเวลา (นาที)" class="text-input">
+            <textarea id="cardio-notes" placeholder="บันทึกเพิ่มเติม..." class="notes-input" style="margin-top:0; min-height: 60px;"></textarea>
+        </div>
+        <button class="action-btn success" onclick="saveCardioLog()"><i data-feather="plus-circle"></i> บันทึก</button>
+    </div>
+</div>
+
+
 <script>
     const DEFAULT_REST_TIME = 90;
     let workoutStartTime = null, workoutTimerInterval = null;
@@ -991,8 +1018,8 @@
     let workoutPlans = [], activePlanIndex = 0;
     let userEquipment = { barbellWeight: 20, availablePlates: [20, 15, 10, 5, 2.5, 1.25] };
     const defaultPlan = [{ name: "โปรแกรมเริ่มต้น 4 วัน/สัปดาห์", active: true, days: [ { name: "Upper A (จันทร์)", exercises: [{name: "Incline Dumbbell Press", muscleGroup: "Chest"}, {name: "One-arm Dumbbell Row", muscleGroup: "Back"}, {name: "Dumbbell Lateral Raise", muscleGroup: "Shoulders"}, {name: "Dumbbell Curl", muscleGroup: "Arms"}, {name: "Overhead Triceps Extension", muscleGroup: "Arms"}] }, { name: "Lower A (อังคาร)", exercises: [{name: "Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Romanian Deadlift (RDL)", muscleGroup: "Legs"}, {name: "Hip Thrust", muscleGroup: "Legs"}, {name: "Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (พุธ)", exercises: [] }, { name: "Upper B (พฤหัสฯ)", exercises: [{name: "Flat Dumbbell Press", muscleGroup: "Chest"}, {name: "Pull-up / Band Pull-down", muscleGroup: "Back"}, {name: "Dumbbell Shoulder Press", muscleGroup: "Shoulders"}, {name: "Dumbbell Hammer Curl", muscleGroup: "Arms"}, {name: "Bench Dips", muscleGroup: "Arms"}] }, { name: "Lower B (ศุกร์)", exercises: [{name: "Bulgarian Split Squat", muscleGroup: "Legs"}, {name: "Sumo Goblet Squat", muscleGroup: "Legs"}, {name: "Dumbbell Step-up", muscleGroup: "Legs"}, {name: "Standing Calf Raise", muscleGroup: "Legs"}] }, { name: "พัก (เสาร์)", exercises: [] }, { name: "พัก (อาทิตย์)", exercises: [] } ] }];
-    const muscleGroups = { 'Chest': 'อก', 'Back': 'หลัง', 'Legs': 'ขา', 'Shoulders': 'ไหล่', 'Arms': 'แขน', 'Core': 'แกนกลางลำตัว', 'Other': 'อื่นๆ' };
-    const muscleGroupColors = { 'Chest': '#f44336', 'Back': '#2196F3', 'Legs': '#4CAF50', 'Shoulders': '#FFC107', 'Arms': '#9C27B0', 'Core': '#FF9800', 'Other': '#9E9E9E' };
+    const muscleGroups = { 'Chest': 'อก', 'Back': 'หลัง', 'Legs': 'ขา', 'Shoulders': 'ไหล่', 'Arms': 'แขน', 'Core': 'แกนกลางลำตัว', 'Other': 'อื่นๆ', 'Cardio': 'คาร์ดิโอ' };
+    const muscleGroupColors = { 'Chest': '#f44336', 'Back': '#2196F3', 'Legs': '#4CAF50', 'Shoulders': '#FFC107', 'Arms': '#9C27B0', 'Core': '#FF9800', 'Other': '#9E9E9E', 'Cardio': '#03dac6'};
     let currentCalendarDate = new Date();
 
     function vibrate(duration = 50) {
@@ -1002,8 +1029,9 @@
     }
 
     function getMuscleGroup(exerciseName) {
-        const keywordMap = { 'press': 'Chest', 'push-up': 'Chest', 'fly': 'Chest', 'dips': 'Chest', 'row': 'Back', 'pull-up': 'Back', 'pull-down': 'Back', 'deadlift': 'Back', 'squat': 'Legs', 'lunge': 'Legs', 'step-up': 'Legs', 'thrust': 'Legs', 'calf raise': 'Legs', 'shoulder press': 'Shoulders', 'lateral raise': 'Shoulders', 'front raise': 'Shoulders', 'curl': 'Arms', 'triceps extension': 'Arms', 'hammer curl': 'Arms', 'crunch': 'Core', 'plank': 'Core', 'leg raise': 'Core' };
         const lowerExName = exerciseName.toLowerCase();
+        if (lowerExName.includes('run') || lowerExName.includes('walk') || lowerExName.includes('cycle') || lowerExName.includes('cardio')) return 'Cardio';
+        const keywordMap = { 'press': 'Chest', 'push-up': 'Chest', 'fly': 'Chest', 'dips': 'Chest', 'row': 'Back', 'pull-up': 'Back', 'pull-down': 'Back', 'deadlift': 'Back', 'squat': 'Legs', 'lunge': 'Legs', 'step-up': 'Legs', 'thrust': 'Legs', 'calf raise': 'Legs', 'shoulder press': 'Shoulders', 'lateral raise': 'Shoulders', 'front raise': 'Shoulders', 'curl': 'Arms', 'triceps extension': 'Arms', 'hammer curl': 'Arms', 'crunch': 'Core', 'plank': 'Core', 'leg raise': 'Core' };
         for (const keyword in keywordMap) {
             if (lowerExName.includes(keyword)) return keywordMap[keyword];
         }
@@ -1038,11 +1066,10 @@
         document.body.className = newTheme === "dark" ? "" : "light-mode";
         localStorage.setItem("gymLogTheme", newTheme);
         updateChartDefaults();
-        // Re-render the currently active analysis/body page to apply theme changes to charts
         const activeAnalysisTab = document.querySelector('.analysis-tab-btn.active');
         if (activeAnalysisTab) {
             const tabName = activeAnalysisTab.getAttribute('onclick').match(/'(.*?)'/)[1];
-            showAnalysisTab(tabName, true); // force re-render
+            showAnalysisTab(tabName, true);
         }
     }
     
@@ -1061,8 +1088,8 @@
         }
         loadHistory();
         populateAllExerciseSelects();
-        renderBodyStatsPage(); // Initial render setup
-        renderAnalysisPage(); // Initial render setup
+        renderBodyStatsPage(); 
+        renderAnalysisPage();
         renderPRsPage();
         updateEquipmentInputs();
     }
@@ -1358,7 +1385,7 @@
                 <h2><i data-feather="coffee"></i> วันพักผ่อน</h2>
                 <p>พักผ่อนให้เต็มที่ หรือถ้าอยากจะขยับร่างกายเบาๆ ก็ทำได้เลย</p>
                 <div class="rest-day-actions">
-                     <button class="action-btn neutral" onclick="document.getElementById('rest-day-card').style.display='none'; toggleQuickLogForm(); document.getElementById('toggle-quick-log-btn').style.display='flex';">
+                     <button class="action-btn neutral" onclick="toggleQuickLogForm()">
                         <i data-feather="zap"></i> บันทึกด่วน (Freestyle)
                      </button>
                      <button class="action-btn secondary" onclick="showOverrideModal()">
@@ -1447,7 +1474,7 @@
                 <div class="feedback-container" id="feedback-${uniqueId}"></div>
                 <div class="log-input" style="align-items: center; margin-bottom: 10px;">
                     <button class="util-btn" onclick="adjustWeight('${uniqueId}', -1.25)"><i data-feather="minus"></i></button>
-                   <input type="tel" pattern="[0-9.]*" placeholder="น้ำหนัก" id="weight-${uniqueId}" value="${suggestion ? suggestion.suggestedWeight : ""}" style="width: 60px; text-align: center;">
+                    <input type="tel" pattern="[0-9.]*" placeholder="น้ำหนัก" id="weight-${uniqueId}" value="${suggestion ? suggestion.suggestedWeight : ""}" style="width: 60px; text-align: center;">
                     <button class="util-btn" onclick="adjustWeight('${uniqueId}', 1.25)"><i data-feather="plus"></i></button>
                     <button class="util-btn" onclick="openPlateCalculator('${uniqueId}')" title="คำนวณแผ่นน้ำหนัก">⚖️</button>
                     <input type="tel" pattern="[0-9]*" placeholder="ครั้ง" id="reps-${uniqueId}" style="width: 60px; text-align: center;">
@@ -1584,65 +1611,38 @@
         return null;
     }
     
+    // --- MODIFIED TO SHOW CHOICE MODAL ---
     function toggleQuickLogForm() {
-        const form = document.getElementById('quick-log-form');
-        const btn = document.getElementById('toggle-quick-log-btn');
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            btn.innerHTML = '<i data-feather="x"></i>ยกเลิกการบันทึกด่วน';
-            btn.classList.remove('neutral');
-            btn.classList.add('danger');
-        } else {
-            form.style.display = 'none';
-            btn.innerHTML = '<i data-feather="zap"></i>บันทึกด่วน (Freestyle)';
-            btn.classList.remove('danger');
-            btn.classList.add('neutral');
-        }
+        document.getElementById('log-choice-modal').style.display = 'block';
         feather.replace();
     }
 
-    function saveQuickLog() {
-        const exerciseName = document.getElementById('quick-log-exercise').value.trim();
-        const muscleGroup = document.getElementById('quick-log-muscle-group').value;
-        const weightStr = document.getElementById('quick-log-weight').value;
-        const repsStr = document.getElementById('quick-log-reps').value;
-        if (!exerciseName || !weightStr || !repsStr) {
-            alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
-            return;
-        }
-        const weight = parseFloat(weightStr);
-        const reps = parseInt(repsStr);
-        if (isNaN(weight) || isNaN(reps)) {
-            alert("กรุณากรอกน้ำหนักและจำนวนครั้งให้เป็นตัวเลข");
-            return;
-        }
-        if (!currentWorkoutLog[exerciseName]) {
-            currentWorkoutLog[exerciseName] = { sets: [], notes: '', muscleGroup: muscleGroup };
-        }
-        const estimated1RM = calculate1RM(weight, reps);
-        const newSet = { weight: weight, reps: reps, rpe: "-", e1rm: estimated1RM };
-        checkAndSavePR(exerciseName, weight, reps);
-        currentWorkoutLog[exerciseName].sets.push(newSet);
-        if (!workoutStartTime) { startWorkoutTimer(); }
-        saveWorkoutToHistory();
-        renderFreestyleLog(exerciseName, newSet);
-        document.getElementById('quick-log-exercise').value = '';
-        document.getElementById('quick-log-weight').value = '';
-        document.getElementById('quick-log-reps').value = '';
-        toggleQuickLogForm();
+    // --- NEW FUNCTIONS FOR MODALS ---
+    function openQuickLogForm() {
+        closeModal('log-choice-modal');
+        const form = document.getElementById('quick-log-form');
+        form.style.display = 'block';
+        // You might want to adjust the main toggle button's appearance here if needed
+    }
+
+    function openCardioLogForm() {
+        closeModal('log-choice-modal');
+        document.getElementById('cardio-log-modal').style.display = 'block';
     }
     
-    // *** MODIFIED SHOWPAGE LOGIC ***
+    function saveCardioLog() {
+        alert("ฟังก์ชันบันทึกคาร์ดิโอจะถูกสร้างในขั้นตอนถัดไปครับ");
+        closeModal('cardio-log-modal');
+    }
+
     function showPage(pageName) {
         document.querySelectorAll(".page, .tab-button").forEach(el => el.classList.remove("active"));
         document.getElementById(pageName).classList.add("active");
         document.querySelector(`.tab-button[onclick="showPage('${pageName}')"]`).classList.add("active");
 
-        // Specific actions for each page
         if (pageName === 'plans') { renderPlanListView(); }
         if (pageName === 'prs') { renderPRsPage(); }
         if (pageName === 'analysis') { 
-            // When analysis page is shown, default to the 'overview' sub-tab
             showAnalysisTab('overview', true);
         }
         if (pageName === 'settings') { updateEquipmentInputs(); }
@@ -1704,7 +1704,7 @@
             if(currentWorkoutLog[exerciseName]) {
                 currentWorkoutLog[exerciseName].sets.splice(setIndex, 1);
                 saveWorkoutToHistory();
-                renderLoggedSets(exerciseName, cardId); // Rerender all sets after deletion
+                renderLoggedSets(exerciseName, cardId); 
                 recalculatePRs(exerciseName);
             }
         }
@@ -1829,13 +1829,18 @@
         let totalVolume = 0;
         const exercisesData = [];
         Object.keys(currentWorkoutLog).forEach((exName) => {
-            if (currentWorkoutLog[exName] && currentWorkoutLog[exName].sets.length > 0) {
-                const exLog = currentWorkoutLog[exName];
+            const exLog = currentWorkoutLog[exName];
+            if (exLog && (exLog.sets.length > 0 || exLog.type === 'cardio')) {
                 const exCard = Array.from(document.querySelectorAll('.exercise-card')).find(card => card.querySelector('.exercise-title')?.textContent.startsWith(exName));
-                const notes = exCard ? exCard.querySelector('.notes-input').value : (exLog.notes || "");
-                const exerciseVolume = exLog.sets.reduce((sum, set) => sum + (set.weight * set.reps), 0);
-                exercisesData.push({ name: exName, volume: exerciseVolume, notes: notes, sets: exLog.sets, muscleGroup: exLog.muscleGroup });
-                totalVolume += exerciseVolume;
+                const notes = exCard ? exCard.querySelector('.notes-input')?.value : (exLog.notes || "");
+                
+                let exerciseVolume = 0;
+                if(exLog.type !== 'cardio' && exLog.sets.length > 0) {
+                    exerciseVolume = exLog.sets.reduce((sum, set) => sum + (set.weight * set.reps), 0);
+                    totalVolume += exerciseVolume;
+                }
+                
+                exercisesData.push({ name: exName, volume: exerciseVolume, notes: notes, sets: exLog.sets, muscleGroup: exLog.muscleGroup, type: exLog.type, distance: exLog.distance, duration: exLog.duration });
             }
         });
         if (exercisesData.length === 0) {
@@ -1870,7 +1875,7 @@
         const history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
         
         const historyByDate = history.reduce((acc, entry) => {
-            const date = entry.isoDate.slice(0, 10); // Use YYYY-MM-DD from isoDate
+            const date = entry.isoDate.slice(0, 10); 
             if (!acc[date]) {
                 acc[date] = new Set();
             }
@@ -1959,6 +1964,16 @@
             const date = new Date(entry.isoDate);
             const dateString = date.toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
             let exercisesHTML = entry.exercises.map((ex, exIndex) => {
+                if (ex.type === 'cardio') {
+                    return `<div id="history-ex-${index}-${exIndex}" style="padding: 10px 0;">
+                                <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
+                                    <i data-feather="trending-up"></i> 
+                                    <span>${ex.name}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
+                                </div>
+                                ${ex.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px; margin-left: 34px;">📝 ${ex.notes}</p>` : ''}
+                           </div>`;
+                }
+
                 const safeExName = ex.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
                 const maxWeightSet = ex.sets.reduce((max, set) => set.weight > max.weight ? set : max, {weight: 0});
                 const isWeightPR = (entry.prsAchieved || []).some(pr => pr.type === 'weight' && pr.exercise === ex.name && pr.weight === maxWeightSet.weight);
@@ -2009,7 +2024,7 @@
         if (confirm("คุณแน่ใจหรือไม่ที่จะลบรายการของทั้งวันนี้? การกระทำนี้ไม่สามารถย้อนกลับได้")) {
             let history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
             if (index >= 0 && index < history.length) {
-                const exercisesToRecalc = history[index].exercises;
+                const exercisesToRecalc = history[index].exercises.filter(ex => ex.type !== 'cardio');
                 history.splice(index, 1);
                 localStorage.setItem("gymLogHistory_v2", JSON.stringify(history));
         
@@ -2027,7 +2042,7 @@
         const entry = history[historyIndex];
         const exerciseToDelete = entry.exercises[exerciseIndex];
         if (confirm(`คุณแน่ใจหรือไม่ที่จะลบข้อมูลท่า "${exerciseToDelete.name}" ทั้งหมดออกจากประวัติวันนี้?`)) {
-            const deletedVolume = exerciseToDelete.volume;
+            const deletedVolume = exerciseToDelete.volume || 0;
             entry.exercises.splice(exerciseIndex, 1);
             entry.totalVolume -= deletedVolume;
             if (entry.exercises.length === 0) {
@@ -2036,7 +2051,9 @@
                 history[historyIndex] = entry;
             }
             localStorage.setItem("gymLogHistory_v2", JSON.stringify(history));
-            recalculatePRs(exerciseToDelete.name);
+            if(exerciseToDelete.type !== 'cardio') {
+                recalculatePRs(exerciseToDelete.name);
+            }
             loadAllData();
             showPage('history');
         }
@@ -2091,7 +2108,7 @@
         trophy.classList.add('animate');
         document.getElementById('summary-volume').textContent = `${todayEntry.totalVolume.toFixed(0)} kg`;
         document.getElementById('summary-duration').textContent = todayEntry.duration;
-        const totalSets = todayEntry.exercises.reduce((sum, ex) => sum + ex.sets.length, 0);
+        const totalSets = todayEntry.exercises.reduce((sum, ex) => sum + (ex.sets ? ex.sets.length : 0), 0);
         document.getElementById('summary-sets').textContent = totalSets;
         const prsContainer = document.getElementById('summary-prs-container');
         const prsList = document.getElementById('summary-prs-list');
@@ -2155,7 +2172,11 @@
     function populateAllExerciseSelects(){
         const history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
         const exerciseSet = new Set;
-        history.forEach(entry => entry.exercises.forEach(ex => exerciseSet.add(ex.name)));
+        history.forEach(entry => entry.exercises.forEach(ex => {
+            if(ex.type !== 'cardio') {
+                exerciseSet.add(ex.name)
+            }
+        }));
         const sortedExercises = Array.from(exerciseSet).sort();
         const selects = document.querySelectorAll("#exercise-select, #compare-exercise-select");
         selects.forEach(select => {
@@ -2169,17 +2190,14 @@
             });
         });
     }
-
-    // *** MODIFIED ANALYSIS TAB LOGIC ***
+    
     function showAnalysisTab(tabName, forceRerender = false) {
         const currentActiveTab = document.querySelector('.analysis-tab-btn.active');
-        // Only run the logic if the tab is not already active, or if a re-render is forced
         if (!currentActiveTab || !currentActiveTab.onclick.toString().includes(tabName) || forceRerender) {
             document.querySelectorAll(".analysis-sub-page, .analysis-tab-btn").forEach(el => el.classList.remove("active"));
             document.getElementById(`analysis-${tabName}`).classList.add("active");
             document.querySelector(`.analysis-tab-btn[onclick*="'${tabName}'"]`).classList.add("active");
 
-            // Render content for the specific tab
             if (tabName === 'overview') {
                 renderAnalysisPage();
             } else if (tabName === 'per_exercise') {
@@ -2252,7 +2270,7 @@
             const week = getWeekNumber(new Date(entry.isoDate));
             if (!acc[week]) acc[week] = { volume: 0, totalE1rm: 0, count: 0 };
             acc[week].volume += entry.totalVolume;
-            const maxE1rm = Math.max(...entry.exercises.map(ex => Math.max(...ex.sets.map(s => s.e1rm), 0)), 0);
+            const maxE1rm = Math.max(...entry.exercises.map(ex => ex.type !== 'cardio' ? Math.max(...ex.sets.map(s => s.e1rm), 0) : 0), 0);
             if(maxE1rm > 0) {
               acc[week].totalE1rm += maxE1rm;
               acc[week].count++;
@@ -2315,7 +2333,7 @@
             const dataMap = new Map();
              history.forEach(entry => {
                 const exData = entry.exercises.find(ex => ex.name === exName);
-                if (exData) {
+                if (exData && exData.type !== 'cardio') {
                     const dateLabel = new Date(entry.isoDate).toLocaleDateString("th-TH", { month: "short", day: "numeric" });
                     const max1RM = Math.max(...exData.sets.map(s => s.e1rm), 0);
                     if (max1RM > 0) {
@@ -2363,7 +2381,9 @@
             entry.exercises.forEach(ex => {
                 const group = ex.muscleGroup || getMuscleGroup(ex.name);
                 if(volumeByGroup.hasOwnProperty(group)) {
-                    volumeByGroup[group] += ex.volume;
+                    if (ex.type !== 'cardio') {
+                        volumeByGroup[group] += ex.volume;
+                    }
                 }
             });
         });
@@ -2402,7 +2422,9 @@
         const selects = document.querySelectorAll('#quick-log-muscle-group');
         let optionsHTML = '';
         for (const key in muscleGroups) {
-            optionsHTML += `<option value="${key}">${muscleGroups[key]}</option>`;
+            if (key !== 'Cardio') { // Exclude Cardio from this specific dropdown
+                optionsHTML += `<option value="${key}">${muscleGroups[key]}</option>`;
+            }
         }
         selects.forEach(select => select.innerHTML = optionsHTML);
     }
@@ -2420,7 +2442,7 @@
         const data = { labels: [], volumes: [], max1RMs: [] };
         history.slice().reverse().forEach(entry => {
             const exData = entry.exercises.find(ex => ex.name === exerciseName);
-            if (exData) {
+            if (exData && exData.type !== 'cardio') {
                 const date = new Date(entry.isoDate).toLocaleDateString("th-TH", { month: "short", day: "numeric" });
                 const max1RM = Math.max(...exData.sets.map(s => s.e1rm), 0);
                 data.labels.push(date);
@@ -2503,7 +2525,7 @@
         const newPRData = { maxWeight: 0, repPRs: {} };
         history.forEach(entry => {
             entry.exercises.forEach(ex => {
-                if (ex.name === exerciseName) {
+                if (ex.name === exerciseName && ex.type !== 'cardio') {
                     ex.sets.forEach(set => {
                         if (set.weight > newPRData.maxWeight) { newPRData.maxWeight = set.weight; }
                         if (!newPRData.repPRs[set.weight] || set.reps > newPRData.repPRs[set.weight]) { newPRData.repPRs[set.weight] = set.reps; }
@@ -2599,12 +2621,11 @@
         Chart.defaults.scale.title.color = themeColors.textColor;
     }
     
-    // *** BODY STATS FUNCTIONS (NOW PART OF ANALYSIS PAGE) ***
     const bodyStatMetrics={weight:"น้ำหนักตัว (kg)",bf:"% ไขมัน",chest:"รอบอก (cm)",waist:"รอบเอว (cm)",arm:"รอบแขน (cm)"};
     
     function renderBodyStatsPage(){
         const select = document.getElementById("body-stat-select");
-        if (!select) return; // Guard clause in case the element isn't visible yet
+        if (!select) return; 
         select.innerHTML="";
         Object.keys(bodyStatMetrics).forEach(metric => {
             select.innerHTML += `<option value="${metric}">${bodyStatMetrics[metric]}</option>`
@@ -2678,7 +2699,6 @@
             }
         });
     }
-    // *** END BODY STATS FUNCTIONS ***
 
     function openPlateCalculator(cardId) {
         const weightInput = document.getElementById(`weight-${cardId}`);
@@ -2763,7 +2783,7 @@
         }
     }
 </script>
-    
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -2774,6 +2794,7 @@
       });
     });
   }
-</script>    
+</script>
+
 </body>
 </html>
