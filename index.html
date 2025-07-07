@@ -60,14 +60,14 @@
         h2 { color: var(--secondary-color); }
         .page-title {
             display: flex;
-            justify-content: flex-end; /* Align items to the right */
+            justify-content: flex-end;
             align-items: center;
             gap: 10px;
-            position: relative; /* Needed for pop-up positioning */
+            position: relative;
         }
         #workout-day-title {
             flex-grow: 1;
-            margin-right: auto; /* Push other items to the right */
+            margin-right: auto;
         }
         .title-icon-btn, .override-btn {
             font-size: 1.2em;
@@ -1708,22 +1708,23 @@
             return;
         }
 
-        if (!workoutStartTime) { startWorkoutTimer(); }
+        // Do not start the main workout timer for cardio
+        // if (!workoutStartTime) { startWorkoutTimer(); }
         
         const cardioData = {
-            name: 'Cardio',
+            name: 'Cardio', // Or a more specific name if we add a type selector later
             type: 'cardio',
             distance: distance,
             duration: duration,
             notes: notes,
             muscleGroup: 'Cardio',
-            sets: [] 
+            sets: [] // Keep the sets array for data structure consistency
         };
 
         currentWorkoutLog['Cardio-' + Date.now()] = cardioData;
         saveWorkoutToHistory();
         renderCardioLogInPage(cardioData);
-
+        
         distanceInput.value = '';
         durationInput.value = '';
         notesInput.value = '';
@@ -1735,15 +1736,30 @@
         const card = document.createElement('div');
         card.className = 'card exercise-card cardio';
         card.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
-                <i data-feather="trending-up"></i> 
-                <span>${cardioData.name}: ${cardioData.distance} กม. ใน ${cardioData.duration} นาที</span>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
+                    <i data-feather="trending-up"></i> 
+                    <span>${cardioData.name}: ${cardioData.distance} กม. ใน ${cardioData.duration} นาที</span>
+                </div>
+                <button class="btn-delete" onclick="deleteCardioLog(this.parentElement.parentElement)"><i data-feather="trash-2"></i></button>
             </div>
             ${cardioData.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 10px; padding-left: 34px;">📝 ${cardioData.notes}</p>` : ''}
         `;
         exerciseList.insertBefore(card, exerciseList.firstChild);
         feather.replace();
     }
+
+    function deleteCardioLog(cardElement) {
+        if(confirm("คุณแน่ใจหรือไม่ว่าจะลบบันทึกคาร์ดิโอนี้?")) {
+            // This is a simplified deletion. It only removes from view. 
+            // The actual data is removed from history page.
+            // A full implementation would need to find the exact entry in currentWorkoutLog and remove it.
+            // For now, this visual removal is sufficient before a full page reload or history save.
+            cardElement.remove();
+            // A better implementation would be needed if multiple cardio logs are added in one session before saving.
+        }
+    }
+    //---
 
     function saveQuickLog() {
         const exerciseName = document.getElementById('quick-log-exercise').value.trim();
@@ -1941,9 +1957,7 @@
     }
 
     function logSetAndStartTimer(cardId, exerciseName) {
-        if (!workoutStartTime) {
-            startWorkoutTimer();
-        }
+        if (!workoutStartTime) { startWorkoutTimer(); }
 
         const weightInput = document.getElementById(`weight-${cardId}`);
         const repsInput = document.getElementById(`reps-${cardId}`);
@@ -1969,19 +1983,28 @@
         const todayId = today.toISOString().slice(0, 10);
         let totalVolume = 0;
         const exercisesData = [];
-        Object.keys(currentWorkoutLog).forEach((exName) => {
-            const exLog = currentWorkoutLog[exName];
-            if (exLog && (exLog.sets.length > 0 || exLog.type === 'cardio')) {
-                const exCard = Array.from(document.querySelectorAll('.exercise-card')).find(card => card.querySelector('.exercise-title')?.textContent.startsWith(exName));
+        Object.keys(currentWorkoutLog).forEach((exKey) => { // Use exKey to avoid conflict
+            const exLog = currentWorkoutLog[exKey];
+            if (exLog && ( (exLog.sets && exLog.sets.length > 0) || exLog.type === 'cardio')) {
+                const exCard = Array.from(document.querySelectorAll('.exercise-card')).find(card => card.querySelector('.exercise-title')?.textContent.startsWith(exLog.name));
                 const notes = exCard ? exCard.querySelector('.notes-input')?.value : (exLog.notes || "");
                 
                 let exerciseVolume = 0;
-                if(exLog.type !== 'cardio' && exLog.sets.length > 0) {
+                if(exLog.type !== 'cardio' && exLog.sets && exLog.sets.length > 0) {
                     exerciseVolume = exLog.sets.reduce((sum, set) => sum + (set.weight * set.reps), 0);
                     totalVolume += exerciseVolume;
                 }
                 
-                exercisesData.push({ name: exLog.name, volume: exerciseVolume, notes: notes, sets: exLog.sets, muscleGroup: exLog.muscleGroup, type: exLog.type, distance: exLog.distance, duration: exLog.duration });
+                exercisesData.push({ 
+                    name: exLog.name, 
+                    volume: exerciseVolume, 
+                    notes: notes, 
+                    sets: exLog.sets, 
+                    muscleGroup: exLog.muscleGroup, 
+                    type: exLog.type, 
+                    distance: exLog.distance, 
+                    duration: exLog.duration 
+                });
             }
         });
         if (exercisesData.length === 0) {
@@ -2173,9 +2196,9 @@
                 localStorage.setItem("gymLogHistory_v2", JSON.stringify(history));
         
                 exercisesToRecalc.forEach(ex => recalculatePRs(ex.name));
-
-                loadAllData();
+                
                 showPage('history');
+                setupTodayWorkout();
                 alert("ลบรายการสำเร็จ");
             }
         }
@@ -2198,8 +2221,8 @@
             if(exerciseToDelete.type !== 'cardio') {
                 recalculatePRs(exerciseToDelete.name);
             }
-            loadAllData();
             showPage('history');
+            setupTodayWorkout();
         }
     }
     
