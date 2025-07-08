@@ -1,4 +1,6 @@
+// ===================================================================================
 // --- Global Variables & Constants ---
+// ===================================================================================
 let DEFAULT_REST_TIME = 90;
 let workoutStartTime = null, workoutTimerInterval = null;
 let currentWorkoutLog = {}, personalRecords = {}, bodyStats = [], nextSessionSuggestions = {};
@@ -14,7 +16,9 @@ const bodyStatMetrics={weight:"น้ำหนักตัว (kg)",bf:"% ไข
 let currentCalendarDate = new Date();
 
 
-// --- Main Execution ---
+// ===================================================================================
+// --- Main Execution (Entry Point) ---
+// ===================================================================================
 document.addEventListener('DOMContentLoaded', () => {
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -36,7 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+// ===================================================================================
 // --- Function Definitions ---
+// ===================================================================================
 
 function initializeEventListeners() {
     // CSP-compliant event handling for main tabs
@@ -60,6 +66,60 @@ function initializeEventListeners() {
         }
     });
 }
+
+function showPage(pageName) {
+    document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+    const targetPage = document.getElementById(pageName);
+    if(targetPage) {
+        targetPage.classList.add("active");
+    }
+
+    document.querySelectorAll('.tab-buttons .tab-button').forEach(button => {
+        if (button.dataset.page === pageName) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
+
+    if (pageName === 'plans') { renderPlanListView(); }
+    if (pageName === 'prs') { renderPRsPage(); }
+    if (pageName === 'analysis') { 
+        const activeAnalysisTab = document.querySelector('.analysis-tab-btn.active');
+        const tabToActivate = activeAnalysisTab ? activeAnalysisTab.getAttribute('onclick').match(/'(.*?)'/)[1] : 'overview';
+        showAnalysisTab(tabToActivate, true);
+    }
+    if (pageName === 'settings') { updateEquipmentInputs(); }
+    if (pageName === 'history') { 
+        currentCalendarDate = new Date();
+        loadHistory(); 
+        filterHistory(); 
+    }
+    feather.replace();
+}
+
+function loadAllData() {
+    personalRecords = JSON.parse(localStorage.getItem('gymLogPRs_v4') || '{}');
+    nextSessionSuggestions = JSON.parse(localStorage.getItem('gymLogSuggestions') || '{}');
+    const storedPlans = localStorage.getItem('gymWorkoutPlans_v3');
+    workoutPlans = storedPlans && JSON.parse(storedPlans).length > 0 ? JSON.parse(storedPlans) : defaultPlan;
+    const storedEquipment = localStorage.getItem('gymUserEquipment');
+    if (storedEquipment) userEquipment = JSON.parse(storedEquipment);
+    bodyStats = JSON.parse(localStorage.getItem('gymBodyStats') || '[]');
+    activePlanIndex = workoutPlans.findIndex(p => p.active);
+    if (activePlanIndex === -1) {
+        activePlanIndex = 0;
+        if(workoutPlans.length > 0) workoutPlans[0].active = true;
+    }
+    loadHistory();
+    populateAllExerciseSelects();
+    renderBodyStatsPage(); 
+    renderAnalysisPage();
+    renderPRsPage();
+    updateEquipmentInputs();
+}
+
+// --- Utility Functions ---
 
 function vibrate(duration = 50) {
     if ('vibrate' in navigator) {
@@ -92,27 +152,6 @@ function toggleTheme() {
         const tabName = activeAnalysisTab.getAttribute('onclick').match(/'(.*?)'/)[1];
         showAnalysisTab(tabName, true);
     }
-}
-
-function loadAllData() {
-    personalRecords = JSON.parse(localStorage.getItem('gymLogPRs_v4') || '{}');
-    nextSessionSuggestions = JSON.parse(localStorage.getItem('gymLogSuggestions') || '{}');
-    const storedPlans = localStorage.getItem('gymWorkoutPlans_v3');
-    workoutPlans = storedPlans && JSON.parse(storedPlans).length > 0 ? JSON.parse(storedPlans) : defaultPlan;
-    const storedEquipment = localStorage.getItem('gymUserEquipment');
-    if (storedEquipment) userEquipment = JSON.parse(storedEquipment);
-    bodyStats = JSON.parse(localStorage.getItem('gymBodyStats') || '[]');
-    activePlanIndex = workoutPlans.findIndex(p => p.active);
-    if (activePlanIndex === -1) {
-        activePlanIndex = 0;
-        if(workoutPlans.length > 0) workoutPlans[0].active = true;
-    }
-    loadHistory();
-    populateAllExerciseSelects();
-    renderBodyStatsPage(); 
-    renderAnalysisPage();
-    renderPRsPage();
-    updateEquipmentInputs();
 }
 
 function saveData() {
@@ -235,8 +274,10 @@ function runDataMigrations() {
     }
 }
 
+// --- Plan Functions ---
 function renderPlanListView() {
     const view = document.getElementById("plan-editor-view");
+    if(!view) return;
     view.innerHTML = `<h2>จัดการตารางฝึก</h2><div id="plan-list"></div><button class="action-btn secondary" onclick="createNewPlan()"><i data-feather="plus-circle"></i>สร้างโปรแกรมใหม่</button>`;
     const planListDiv = document.getElementById("plan-list");
     workoutPlans.forEach((plan, planIndex) => {
@@ -334,6 +375,7 @@ function moveExercise(planIndex, dayIndex, exIndex, direction) {
     renderDayEditorView(planIndex, dayIndex);
 }
 
+// --- Workout Page Functions ---
 function setupTodayWorkout(forceDayIndex = -1) {
     if (forceDayIndex === -1) {
         const overrideBtn = document.getElementById('override-btn');
@@ -542,7 +584,7 @@ function adjustWeight(cardId, amount) {
     weightInput.value = newWeight;
 }
 
-// ... ALL OTHER FUNCTIONS ARE HERE ...
+// ... All other functions are here and are unchanged.
 
 // --- PWA Update Logic ---
 function registerServiceWorker() {
