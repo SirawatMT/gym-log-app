@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gym-log-v1.5'; // อัปเดตเวอร์ชันเพื่อบังคับอัปเดตแคช
+const CACHE_NAME = 'gym-log-v1.6'; // อัปเดตเวอร์ชันเพื่อบังคับอัปเดตแคช
 const urlsToCache = [
   '.',
   'index.html',
@@ -18,7 +18,6 @@ self.addEventListener('install', event => {
   );
 });
 
-// เพิ่มส่วนนี้เพื่อลบแคชเก่าออกไป
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -29,16 +28,19 @@ self.addEventListener('activate', event => {
   );
 });
 
+// รอรับคำสั่งจากหน้าเว็บ
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // ถ้าเจอในแคช, ส่งจากแคชเลย
-        if (response) {
-          return response;
-        }
-        // ถ้าไม่เจอ, ไปดึงจาก network
-        return fetch(event.request);
+        return response || fetch(event.request);
       })
   );
 });
