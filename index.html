@@ -31,20 +31,20 @@
     <div id="workout" class="page active">
         <div class="page-title">
             <h1 id="workout-day-title"></h1>
-            <button id="quick-log-btn-top" class="title-icon-btn" onclick="toggleQuickLogMenu()" title="บันทึกด่วน">
+            <button id="quick-log-btn-top" class="title-icon-btn" title="บันทึกด่วน">
                 <i data-feather="zap"></i>
             </button>
-            <button id="override-btn" class="override-btn" onclick="showOverrideModal()">
+            <button id="override-btn" class="override-btn">
                 <i data-feather="calendar"></i>
             </button>
             <span id="total-duration-display"></span>
             
             <div id="quick-log-popup" class="popup-menu">
-                <div class="popup-menu-item" onclick="openQuickLogForm()">
+                <div id="quick-log-weight-training-btn" class="popup-menu-item">
                     <i data-feather="bar-chart-2"></i>
                     <span>Weight Training</span>
                 </div>
-                <div class="popup-menu-item" onclick="openCardioLogForm()">
+                <div id="quick-log-cardio-btn" class="popup-menu-item">
                     <i data-feather="trending-up"></i>
                     <span>Cardio</span>
                 </div>
@@ -62,12 +62,12 @@
                 </div>
             </div>
             <div style="display:flex; gap: 10px;">
-                <button class="action-btn neutral" style="background-color: var(--card-color); color: var(--text-color); border: 1px solid var(--border-color);" onclick="hideQuickLogForm()">ยกเลิก</button>
-                <button class="action-btn success" onclick="saveQuickLog()">บันทึก</button>
+                <button id="cancel-quick-log-btn" class="action-btn neutral" style="background-color: var(--card-color); color: var(--text-color); border: 1px solid var(--border-color);">ยกเลิก</button>
+                <button id="save-quick-log-btn" class="action-btn success">บันทึก</button>
             </div>
         </div>
         <div id="exercise-list"></div>
-        <button id="finish-workout-btn" class="action-btn success" onclick="showWorkoutSummary()"><i data-feather="check-circle"></i>จบการฝึก</button>
+        <button id="finish-workout-btn" class="action-btn success"><i data-feather="check-circle"></i>จบการฝึก</button>
     </div>
     
     <div id="plans" class="page"><div id="plan-editor-view"></div></div>
@@ -81,49 +81,32 @@
     <div id="history" class="page">
         <h2>ประวัติการฝึก</h2>
         <div id="calendar-view"></div>
-        <input type="text" id="history-search" placeholder="ค้นหาชื่อท่า..." onkeyup="filterHistory()">
+        <input type="text" id="history-search" placeholder="ค้นหาชื่อท่า...">
         <div id="history-container" style="margin-top: 15px;"></div>
     </div>
 
     <div id="analysis" class="page">
         <h2>วิเคราะห์และสถิติ</h2>
-        <div class="tab-buttons" style="margin-top: 15px;">
-             <button class="tab-button analysis-tab-btn active" onclick="showAnalysisTab('overview')">ภาพรวม</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('per_exercise')">รายท่า</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('comparison')">เปรียบเทียบ</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('body')">ร่างกาย</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('cardio')">🏃 คาร์ดิโอ</button>
+        <div class="tab-buttons analysis-tabs" style="margin-top: 15px;">
+             <button class="tab-button analysis-tab-btn active" data-tab="overview">ภาพรวม</button>
+             <button class="tab-button analysis-tab-btn" data-tab="per_exercise">รายท่า</button>
+             <button class="tab-button analysis-tab-btn" data-tab="comparison">เปรียบเทียบ</button>
+             <button class="tab-button analysis-tab-btn" data-tab="body">ร่างกาย</button>
+             <button class="tab-button analysis-tab-btn" data-tab="cardio">🏃 คาร์ดิโอ</button>
         </div>
 
         <div id="analysis-overview" class="analysis-sub-page active">
-            <div class="card">
-                <h3>ภาพรวม Volume และความล้า</h3>
-                <div class="chart-container"><canvas id="fatigueAnalysisChart"></canvas></div>
             </div>
-            <div class="card">
-                <h3>Volume รายสัปดาห์</h3>
-                <div class="chart-container"><canvas id="weeklyVolumeChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>ความสมดุลของกล้ามเนื้อ (30 วันล่าสุด)</h3>
-                <div class="chart-container"><canvas id="muscleBalanceChart"></canvas></div>
-            </div>
-        </div>
 
         <div id="analysis-per_exercise" class="analysis-sub-page">
-            <div class="card">
-                <h3>พัฒนาการรายท่า</h3>
-                <select id="exercise-select"></select>
-                <div id="exercise-analysis-content"></div>
             </div>
-        </div>
 
         <div id="analysis-comparison" class="analysis-sub-page">
             <div class="card">
                 <h3>เปรียบเทียบพัฒนาการ (e1RM)</h3>
                 <p style="font-size:0.9em; opacity:0.8; margin-top:-10px; margin-bottom:15px;">เลือก 2-5 ท่าที่ต้องการเปรียบเทียบ (กด Ctrl หรือ Command ค้างไว้เพื่อเลือกหลายท่า)</p>
                 <select id="compare-exercise-select" multiple></select>
-                <button class="action-btn secondary" onclick="generateComparisonChart()">สร้างกราฟเปรียบเทียบ</button>
+                <button id="generate-comparison-chart-btn" class="action-btn secondary">สร้างกราฟเปรียบเทียบ</button>
                 <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
             </div>
         </div>
@@ -140,29 +123,17 @@
                     <input type="tel" pattern="[0-9.]*" id="stat-waist" placeholder="รอบเอว (cm)">
                     <input type="tel" pattern="[0-9.]*" id="stat-arm" placeholder="รอบแขน (cm)">
                 </div>
-                <button class="action-btn success" onclick="saveBodyStats()"><i data-feather="save"></i>บันทึกข้อมูล</button>
+                <button id="save-body-stats-btn" class="action-btn success"><i data-feather="save"></i>บันทึกข้อมูล</button>
             </div>
             <div class="card">
                 <h3>กราฟการเปลี่ยนแปลง</h3>
-                <select id="body-stat-select" onchange="renderBodyStatChart(this.value)"></select>
+                <select id="body-stat-select"></select>
                 <div class="chart-container"><canvas id="bodyStatChart"></canvas></div>
             </div>
         </div>
         
         <div id="analysis-cardio" class="analysis-sub-page">
-            <div class="card">
-                <h3>ระยะทางและเวลา (แต่ละครั้ง)</h3>
-                <div class="chart-container"><canvas id="cardioDistanceChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>Pace (ความเร็วเฉลี่ย)</h3>
-                <div class="chart-container"><canvas id="cardioPaceChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>สรุประยะทางรายสัปดาห์</h3>
-                <div class="chart-container"><canvas id="cardioWeeklySummaryChart"></canvas></div>
-            </div>
-        </div>
+           </div>
     </div>
 
     <div id="settings" class="page">
@@ -193,15 +164,15 @@
 </div>
 
 <div id="rest-timer">
-    <button onclick="adjustTimer(-15)">-15s</button>
+    <button data-adjust="-15">-15s</button>
     <div id="timer-display">1:30</div>
-    <button onclick="adjustTimer(15)">+15s</button>
-    <button onclick="stopTimer()">หยุด</button>
+    <button data-adjust="15">+15s</button>
+    <button id="stop-timer-btn">หยุด</button>
 </div>
 
 <div id="plate-calculator-modal" class="modal">
     <div class="modal-content">
-        <span class="close-button" onclick="closeModal('plate-calculator-modal')">&times;</span>
+        <span class="close-button" data-modal-id="plate-calculator-modal">&times;</span>
         <h2>Plate Calculator</h2>
         <h3 id="calculator-target-weight" style="border:none;"></h3>
         <div class="barbell-vis" id="barbell-visualization"></div>
@@ -211,33 +182,15 @@
 
 <div id="summary-modal" class="modal">
     <div class="modal-content">
-        <span class="close-button" onclick="closeModal('summary-modal')">&times;</span>
+        <span class="close-button" data-modal-id="summary-modal">&times;</span>
         <h2 style="color:var(--success-color);"><i data-feather="award" id="summary-trophy"></i> สรุปผลการฝึก!</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <h4>Total Volume</h4>
-                <p id="summary-volume">0 kg</p>
-            </div>
-            <div class="summary-item">
-                <h4>ระยะเวลา</h4>
-                <p id="summary-duration">00:00:00</p>
-            </div>
-            <div class="summary-item">
-                <h4>จำนวนเซ็ต</h4>
-                <p id="summary-sets">0</p>
-            </div>
-        </div>
-        <div id="summary-prs-container" style="display:none;">
-            <h3 style="color:var(--pr-color); border-color: var(--pr-color);">⭐ PRs ใหม่วันนี้!</h3>
-            <ul id="summary-prs-list" style="padding-left: 0;"></ul>
-        </div>
-        <button class="action-btn secondary" onclick="closeModal('summary-modal')">ปิด</button>
+        <button class="action-btn secondary close-modal-btn" data-modal-id="summary-modal">ปิด</button>
     </div>
 </div>
 
 <div id="override-modal" class="modal">
     <div class="modal-content">
-        <span class="close-button" onclick="closeModal('override-modal')">&times;</span>
+        <span class="close-button" data-modal-id="override-modal">&times;</span>
         <h2>เลือกโปรแกรมที่จะเล่นวันนี้</h2>
         <div id="override-list"></div>
     </div>
@@ -245,14 +198,9 @@
 
 <div id="cardio-log-modal" class="modal">
     <div class="modal-content">
-        <span class="close-button" onclick="closeModal('cardio-log-modal')">&times;</span>
+        <span class="close-button" data-modal-id="cardio-log-modal">&times;</span>
         <h3 style="border:none; margin-top:0;">บันทึกกิจกรรม Cardio</h3>
-        <div class="log-input" style="flex-direction: column; gap:15px;">
-            <input type="tel" pattern="[0-9.]*" id="cardio-distance" placeholder="ระยะทาง (กม.)" class="text-input">
-            <input type="tel" pattern="[0-9]*" id="cardio-duration" placeholder="ระยะเวลา (นาที)" class="text-input">
-            <textarea id="cardio-notes" placeholder="บันทึกเพิ่มเติม..." class="notes-input" style="margin-top:0; min-height: 60px;"></textarea>
-        </div>
-        <button class="action-btn success" onclick="saveCardioLog()"><i data-feather="plus-circle"></i> บันทึก</button>
+        <button id="save-cardio-log-btn" class="action-btn success"><i data-feather="plus-circle"></i> บันทึก</button>
     </div>
 </div>
 
