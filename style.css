@@ -812,3 +812,30 @@ body.light-mode .log-input input, body.light-mode .log-input select, body.light-
     height: 6px;
     border-radius: 50%;
 }
+
+/* PWA Update Notification Style */
+#update-notification {
+    display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-gradient);
+    color: #000;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    z-index: 2000;
+    align-items: center;
+    gap: 20px;
+    font-weight: 700;
+    animation: fadeIn 0.5s ease-out;
+}
+
+#update-notification button {
+    background-color: #fff;
+    color: #018786;
+    margin: 0;
+    padding: 8px 16px;
+    box-shadow: none;
+}
