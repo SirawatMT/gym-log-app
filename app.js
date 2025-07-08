@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
             popup.style.display = 'none';
         }
     });
+    
+    // เรียกใช้ฟังก์ชันลงทะเบียน Service Worker ใหม่
+    registerServiceWorker(); 
 });
 
 function applyTheme() {
@@ -1944,3 +1947,43 @@ window.onclick = function(event) {
         event.target.style.display = 'none';
     }
 }
+
+// PWA Update Logic
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(registration => {
+            console.log('ServiceWorker registration successful.');
+
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateBar(registration);
+                    }
+                });
+            });
+        }).catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    }
+}
+
+function showUpdateBar(registration) {
+    const notificationBar = document.getElementById('update-notification');
+    const updateButton = document.getElementById('update-btn');
+
+    if (notificationBar && updateButton) {
+        notificationBar.style.display = 'flex';
+        updateButton.addEventListener('click', () => {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        });
+    }
+}
+
+let refreshing;
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+        window.location.reload();
+        refreshing = true;
+    }
+});
