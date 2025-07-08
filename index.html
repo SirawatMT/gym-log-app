@@ -254,18 +254,13 @@
     </div>
 </div>
 
+<div id="update-notification">
+    <span>มีเวอร์ชันใหม่พร้อมใช้งาน</span>
+    <button id="update-btn" class="action-btn secondary">อัปเดต</button>
+</div>
+
+
 <script src="app.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(registration => {
-        console.log('ServiceWorker registration successful');
-      }, err => {
-        console.log('ServiceWorker registration failed: ', err);
-      });
-    });
-  }
-</script>
 
 </body>
 </html>
