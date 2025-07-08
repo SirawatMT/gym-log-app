@@ -169,7 +169,7 @@
         <h2>ตั้งค่าและข้อมูล</h2>
         <div class="card">
             <h3>ธีม</h3>
-            <button class="action-btn secondary" onclick="toggleTheme()"><i data-feather="moon"></i>สลับธีม</button>
+            <button id="toggle-theme-btn" class="action-btn secondary"><i data-feather="moon"></i>สลับธีม</button>
         </div>
         
         <div class="card">
@@ -179,14 +179,14 @@
                 <input type="tel" pattern="[0-9.]*" id="equipment-barbell-weight" placeholder="น้ำหนักแกนเปล่า (kg)">
                 <input type="text" id="equipment-plates" placeholder="แผ่นน้ำหนักที่มี (เช่น 10, 5, 2.5, 1.25)">
             </div>
-            <button class="action-btn success" onclick="saveEquipmentSettings()"><i data-feather="save"></i>บันทึกอุปกรณ์</button>
+            <button id="save-equipment-btn" class="action-btn success"><i data-feather="save"></i>บันทึกอุปกรณ์</button>
         </div>
 
         <div class="card">
             <h3>สำรอง/นำเข้าข้อมูล</h3>
             <p style="opacity:0.8; font-size:0.9em;">วิธีที่แนะนำ: สำรองข้อมูลเป็นไฟล์เพื่อความปลอดภัยและป้องกันข้อมูลผิดพลาด</p>
-            <button class="action-btn secondary" onclick="backupDataToFile()"><i data-feather="download"></i>สำรองข้อมูลเป็นไฟล์</button>
-            <button class="action-btn success" onclick="document.getElementById('restore-file-input').click();"><i data-feather="upload"></i>นำเข้าข้อมูลจากไฟล์</button>
+            <button id="backup-btn" class="action-btn secondary"><i data-feather="download"></i>สำรองข้อมูลเป็นไฟล์</button>
+            <button id="restore-btn" class="action-btn success"><i data-feather="upload"></i>นำเข้าข้อมูลจากไฟล์</button>
             <input type="file" id="restore-file-input" accept=".json" style="display: none;">
         </div>
     </div>
@@ -260,7 +260,6 @@
     <span>มีเวอร์ชันใหม่พร้อมใช้งาน</span>
     <button id="update-btn" class="action-btn secondary">อัปเดต</button>
 </div>
-
 
 <script src="app.js"></script>
 
