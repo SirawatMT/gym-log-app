@@ -1,3 +1,4 @@
+// --- Global Variables & Constants ---
 let DEFAULT_REST_TIME = 90;
 let workoutStartTime = null, workoutTimerInterval = null;
 let currentWorkoutLog = {}, personalRecords = {}, bodyStats = [], nextSessionSuggestions = {};
@@ -11,48 +12,8 @@ const muscleGroups = { 'Chest': 'อก', 'Back': 'หลัง', 'Legs': 'ข�
 const muscleGroupColors = { 'Chest': '#f44336', 'Back': '#2196F3', 'Legs': '#4CAF50', 'Shoulders': '#FFC107', 'Arms': '#9C27B0', 'Core': '#FF9800', 'Other': '#9E9E9E', 'Cardio': '#03dac6'};
 let currentCalendarDate = new Date();
 
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {
-        console.error("Web Audio API not supported");
-    }
-    runDataMigrations();
-    loadAllData();
-    renderPlanListView();
-    setupTodayWorkout();
-    applyTheme();
-    updateChartDefaults();
-    populateMuscleGroupSelects();
 
-    // --- Event Listeners ---
-    document.getElementById('exercise-select').addEventListener('change', (e) => generateExerciseCharts(e.target.value));
-    document.getElementById('restore-file-input').addEventListener('change', handleRestoreFile);
-    
-    // CSP-compliant event handling for main tabs
-    document.querySelectorAll('.tab-buttons .tab-button').forEach(button => {
-        button.addEventListener('click', () => {
-            // The showPage function is already defined globally, so we can call it.
-            // It handles the active state visually.
-            const pageName = button.dataset.page;
-            if (pageName) {
-                showPage(pageName);
-            }
-        });
-    });
-
-    document.addEventListener('click', function(event) {
-        const popup = document.getElementById('quick-log-popup');
-        const button = document.getElementById('quick-log-btn-top');
-        if (popup && button && !popup.contains(event.target) && !button.contains(event.target)) {
-            popup.style.display = 'none';
-        }
-    });
-    
-    feather.replace();
-    registerServiceWorker(); 
-});
-
+// --- Function Definitions ---
 
 function vibrate(duration = 50) {
     if ('vibrate' in navigator) {
@@ -75,6 +36,13 @@ function applyTheme() {
     document.body.className = theme === "dark" ? "" : "light-mode";
 }
 
+function updateChartDefaults() {
+    const themeColors = getThemeColors();
+    Chart.defaults.color = themeColors.textSecondaryColor;
+    Chart.defaults.borderColor = themeColors.borderColor;
+    Chart.defaults.scale.title.color = themeColors.textColor;
+}
+
 function toggleTheme() {
     const newTheme = document.body.classList.contains("light-mode") ? "dark" : "light";
     document.body.className = newTheme === "dark" ? "" : "light-mode";
@@ -85,6 +53,63 @@ function toggleTheme() {
         const tabName = activeAnalysisTab.getAttribute('onclick').match(/'(.*?)'/)[1];
         showAnalysisTab(tabName, true);
     }
+}
+
+function loadHistory() {
+    const historyContainer = document.getElementById("history-container");
+    historyContainer.innerHTML = "";
+    renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+    const history = JSON.parse(localStorage.getItem("gymLogHistory_v2") || "[]");
+    if (history.length === 0) {
+        historyContainer.innerHTML = "<p>ยังไม่มีประวัติการฝึก</p>";
+        return;
+    }
+    
+    history.forEach((entry, index) => {
+        const entryCard = document.createElement("div");
+        entryCard.className = "card";
+        entryCard.id = `history-card-${index}`;
+        const date = new Date(entry.isoDate);
+        const dateString = date.toLocaleDateString("th-TH", { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+        let exercisesHTML = entry.exercises.map((ex, exIndex) => {
+            if (ex.type === 'cardio') {
+                return `<div id="history-ex-${index}-${exIndex}" style="padding: 10px 0;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--primary-color);">
+                                    <i data-feather="trending-up"></i> 
+                                    <span>${ex.name || 'Cardio'}: ${ex.distance} กม. ใน ${ex.duration} นาที</span>
+                                </div>
+                                <button class="btn-delete" onclick="deleteExerciseFromHistory(${index}, ${exIndex})"><i data-feather="trash-2"></i></button>
+                            </div>
+                            ${ex.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px; margin-left: 34px;">📝 ${ex.notes}</p>` : ''}
+                       </div>`;
+            }
+
+            const safeExName = ex.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const maxWeightSet = ex.sets.reduce((max, set) => set.weight > max.weight ? set : max, {weight: 0});
+            const isWeightPR = (entry.prsAchieved || []).some(pr => pr.type === 'weight' && pr.exercise === ex.name && pr.weight === maxWeightSet.weight);
+            return `<div id="history-ex-${index}-${exIndex}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <div class="history-exercise-title ${isWeightPR ? 'pr-highlight' : ''}" onclick="viewAnalysisFor('${safeExName}')">▪️ ${ex.name} ${isWeightPR ? '⭐' : ''}</div>
+                            <button class="btn-delete" onclick="toggleSetDetails(${index}, ${exIndex})"><i data-feather="menu"></i></button>
+                        </div>
+                        <div id="set-details-${index}-${exIndex}" style="display:none; margin-left: 15px; margin-top: 5px;">
+                            ${ex.sets.map((set, setIndex) => {
+                                const isRepPR = (entry.prsAchieved || []).some(pr => pr.type === 'reps' && pr.exercise === ex.name && pr.weight === set.weight && pr.reps === set.reps);
+                                return `<div class="history-set-item ${isRepPR ? 'pr-highlight' : ''}">
+                                            <span>Set ${setIndex + 1}: ${set.weight}kg x ${set.reps} reps @${set.rpe} ${isRepPR ? '⭐' : ''}</span>
+                                            <button class="btn-delete" onclick="deleteSetFromHistory(${index}, ${exIndex}, ${setIndex})"><i data-feather="trash-2"></i></button>
+                                        </div>`
+                            }).join('')}
+                            ${ex.notes ? `<p style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">📝 ${ex.notes}</p>` : ''}
+                            <button class="action-btn danger" onclick="deleteExerciseFromHistory(${index}, ${exIndex})" style="width:100%; margin-top:10px; font-size: 0.9em; padding: 8px;"><i data-feather="trash"></i> ลบท่า ${ex.name} ทั้งหมด</button>
+                        </div>
+                    </div>`
+        }).join('');
+        entryCard.innerHTML = `<button class="btn-delete" onclick="deleteHistoryEntry(${index})" style="position: absolute; top: 15px; right: 15px;"><i data-feather="x-circle" style="color:var(--danger-color);"></i></button><h4 style="color: var(--text-color); margin: 0 0 10px 0;">${dateString}</h4><div style="font-size: 0.9em; color: var(--text-secondary-color);">⏱️ ${entry.duration} &nbsp; 🔥 ${entry.totalVolume.toFixed(0)} kg</div><hr style="border-color: var(--border-color); opacity: 0.5; margin: 15px 0;">${exercisesHTML}`;
+        historyContainer.appendChild(entryCard);
+    });
+    feather.replace();
 }
 
 function loadAllData() {
@@ -100,7 +125,7 @@ function loadAllData() {
         activePlanIndex = 0;
         if(workoutPlans.length > 0) workoutPlans[0].active = true;
     }
-    loadHistory();
+    loadHistory(); // This call is now safe.
     populateAllExerciseSelects();
     renderBodyStatsPage(); 
     renderAnalysisPage();
@@ -563,12 +588,7 @@ function adjustWeight(cardId, amount) {
     weightInput.value = newWeight;
 }
 
-// ... All other functions from the original app.js file are here ...
-// ... I've omitted them for brevity but they are unchanged ...
-
 function showAnalysisTab(tabName, forceRerender = false) {
-    // This function still uses onclick attributes within its generated HTML,
-    // which we will need to refactor in a future version.
     const currentActiveTab = document.querySelector('.analysis-tab-btn.active');
     if (!currentActiveTab || !currentActiveTab.onclick.toString().includes(tabName) || forceRerender) {
         document.querySelectorAll(".analysis-sub-page, .analysis-tab-btn").forEach(el => el.classList.remove("active"));
@@ -589,8 +609,7 @@ function showAnalysisTab(tabName, forceRerender = false) {
     }
 }
 
-
-// ... All other functions from the original app.js file are here ...
+// ... All other functions are unchanged ...
 
 // PWA Update Logic
 function registerServiceWorker() {
