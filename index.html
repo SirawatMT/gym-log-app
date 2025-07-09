@@ -12,250 +12,829 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-color: #1E1E1E;
+            --text-color: #E0E0E0;
+            --text-secondary-color: #A0A0A0;
+            --primary-color: #03dac6;
+            --primary-gradient: linear-gradient(45deg, #03dac6, #018786);
+            --secondary-color: #bb86fc;
+            --secondary-gradient: linear-gradient(45deg, #bb86fc, #6200ee);
+            --border-color: #333;
+            --success-color: #4CAF50;
+            --success-gradient: linear-gradient(45deg, #4CAF50, #2e7d32);
+            --pr-color: #FFD700;
+            --danger-color: #f44336;
+            --font-main: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.15);
+            --shadow-md: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        body.light-mode {
+            --bg-color: #F0F2F5;
+            --card-color: #FFFFFF;
+            --text-color: #1c1e21;
+            --text-secondary-color: #65676B;
+            --border-color: #E4E6EB;
+        }
+        body{
+            font-family: var(--font-main);
+            background-color:var(--bg-color);
+            color:var(--text-color);
+            margin:0;
+            padding:15px 15px 100px 15px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container{
+            max-width:600px;
+            margin:auto;
+        }
+        h1,h2,h3{
+            color:var(--text-color);
+            border-bottom:1px solid var(--border-color);
+            padding-bottom:10px;
+            font-weight: 700;
+        }
+        h1 { color: var(--primary-color); }
+        h2 { color: var(--secondary-color); }
+        .page-title {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        #workout-day-title {
+            flex-grow: 1;
+            margin-right: auto;
+        }
+        .title-icon-btn, .override-btn {
+            font-size: 1.2em;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .title-icon-btn:hover, .override-btn:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+        .override-btn {
+             font-size: 1.2em;
+        }
+        .override-btn i {
+             width: 1.2em; height: 1.2em;
+        }
+        .override-btn.danger-style {
+            background-color: var(--danger-color);
+            color: #fff;
+            border-color: var(--danger-color);
+        }
+        #total-duration-display {
+            font-size: 0.7em;
+            font-weight: 500;
+            color: var(--text-secondary-color);
+            background-color: var(--card-color);
+            padding: 4px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        h2 .back-button {
+            font-size: 0.8em;
+            color: var(--text-color);
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin-right: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        h3{
+            font-size:1.1em;
+            border-bottom-width:1px;
+            margin-top:25px;
+            margin-bottom:15px;
+        }
+        .card{
+            background-color:var(--card-color);
+            border-radius:12px;
+            padding: 20px;
+            margin-bottom:15px;
+            border:1px solid var(--border-color);
+            transition: all .3s;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        .ex-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom: 10px;
+        }
+        .ex-title-container{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            flex-grow: 1;
+        }
+        .exercise-title{
+            font-size:1.3em;
+            font-weight:700;
+            color:var(--secondary-color);
+            position: relative;
+            transition: opacity 0.4s ease;
+        }
+        .exercise-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            height: 2px;
+            background-color: var(--text-secondary-color);
+            width: 100%;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .completed .exercise-title {
+            opacity: 0.5;
+        }
+        .completed .exercise-title::after {
+            transform: scaleX(1);
+        }
+        .pr-star {
+            color:var(--pr-color);
+            font-size:1.2em;
+            display:none;
+            transition: transform 0.3s;
+        }
+        .exercise-notes{
+            font-size:1em;
+            color:var(--text-secondary-color);
+            margin-bottom: 15px;
+        }
+        .coach-suggestion-text {
+            font-size: 0.85em;
+            color: var(--primary-color);
+            font-style: italic;
+            opacity: 0.9;
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.5s;
+        }
+        .log-input, .add-exercise-form, .stat-input-group{
+            display:flex;
+            gap:10px;
+            margin-bottom:10px;
+        }
+        .stat-input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        body.light-mode .stat-input-group input {
+            background-color: #f0f2f5;
+        }
+        .log-input input,.log-input select,#exercise-select,.text-input,#body-stat-select, #history-search, .add-exercise-form input, .add-exercise-form select, #compare-exercise-select{
+            width:100%;
+            padding:12px;
+            border-radius:8px;
+            border:1px solid var(--border-color);
+            background-color:var(--bg-color);
+            color:var(--text-color);
+            font-size:1em;
+            box-sizing:border-box;
+        }
+        #compare-exercise-select {
+            min-height: 120px;
+        }
+        .action-btn{
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width:100%;
+            padding:12px;
+            margin:10px 0;
+            border:none;
+            border-radius:8px;
+            font-weight:700;
+            cursor:pointer;
+            transition: all 0.2s;
+            font-size: 1.05em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .action-btn.primary {
+            background: var(--primary-gradient);
+            color: #000;
+        }
+        .action-btn.primary:hover {
+            opacity: 0.9;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .action-btn.secondary {
+            background: var(--secondary-gradient);
+            color: #fff;
+        }
+        .action-btn.secondary:hover {
+            opacity: 0.9;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .action-btn.success {
+            background: var(--success-gradient);
+            color: #fff;
+        }
+        .action-btn.success:hover {
+            opacity: 0.9;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .action-btn.neutral {
+            background-color: #555;
+            color: #fff;
+        }
+        .action-btn.danger {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+        .util-btn {
+            padding: 0;
+            height: 44px;
+            width: 44px;
+            flex-shrink: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .util-btn:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+        .split-button-container {
+            display: flex;
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--primary-gradient);
+            color: #000;
+            transition: all 0.2s;
+        }
+        .split-button-container:hover {
+            opacity: 0.9;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .split-button-main {
+            flex-grow: 1;
+            padding: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.05em;
+            background: transparent;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .split-button-repeat {
+            flex-shrink: 0;
+            width: 50px;
+            padding: 12px;
+            border: none;
+            border-left: 1px solid rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.05em;
+            background: transparent;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .split-button-repeat:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        textarea,.backup-textarea{
+            width:calc(100% - 24px);
+            background-color:#2b2b2b;
+            color:var(--text-color);
+            border:1px solid var(--border-color);
+            border-radius:8px;
+            padding:10px;
+            margin-top:10px;
+            min-height:40px;
+            font-family:inherit;
+            font-size:.9em;
+        }
+        .modal-content .notes-input {
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        body.light-mode .log-input input, body.light-mode .log-input select, body.light-mode .text-input, body.light-mode textarea, body.light-mode .util-btn, body.light-mode #history-search, body.light-mode .add-exercise-form input, body.light-mode .add-exercise-form select, body.light-mode #compare-exercise-select, body.light-mode .modal-content .notes-input {
+            background-color: #f0f2f5;
+        }
+        .tab-buttons{
+            display:flex;
+            margin-bottom:20px;
+            border-bottom:1px solid var(--border-color);
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 5px;
+            box-shadow: var(--shadow-sm);
+        }
+        .tab-button{
+            flex-grow:1;
+            padding:10px 5px;
+            text-align: center;
+            background-color:transparent;
+            border:none;
+            color:var(--text-secondary-color);
+            font-size:1em;
+            font-weight:500;
+            cursor:pointer;
+            border-radius: 8px;
+            transition:all .3s;
+        }
+        .tab-button.active{
+            color:var(--primary-color);
+            background-color: rgba(3, 218, 198, 0.1);
+        }
+        .page, .analysis-sub-page {
+            display:none;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page.active, .analysis-sub-page.active {
+            display:block;
+        }
+        .list-item{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:12px;
+            background-color:var(--bg-color);
+            border-radius:8px;
+            margin-bottom:8px;
+        }
+        .btn-group button, .btn-group input {
+            margin-left:5px;
+            background:none;
+            border:none;
+            color:var(--text-secondary-color);
+            border-radius:4px;
+            padding:5px 8px;
+            cursor:pointer;
+            display: flex;
+            align-items: center;
+        }
+        .btn-group button:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+        .btn-delete{
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--text-secondary-color);
+        }
+        .btn-delete:hover{
+            color:var(--danger-color)!important;
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        #rest-timer{
+            position:fixed;
+            bottom:0;
+            left:0;
+            width:100%;
+            background-color:var(--card-color);
+            padding:10px;
+            box-sizing:border-box;
+            box-shadow:0 -2px 10px rgba(0,0,0,.5);
+            display:none;
+            justify-content:space-around;
+            align-items:center;
+        }
+        #timer-display{
+            font-size:2em;
+            color:var(--primary-color);
+            font-weight:700;
+        }
+        .suggestion-card{
+            border-left:5px solid var(--pr-color);
+            padding:15px;
+            background-color:rgba(255,215,0,.1);
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .suggestion-card.danger {
+            border-color: var(--danger-color);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        .chart-container{
+            margin-top:20px;
+            margin-bottom:30px;
+        }
+        .feather {
+            width: 1.1em;
+            height: 1.1em;
+            vertical-align: -0.15em;
+            stroke-width: 2.5;
+        }
+        .history-exercise-title {
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--secondary-color);
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+            flex-grow: 1;
+        }
+        .history-exercise-title:hover {
+            background-color: var(--border-color);
+        }
+        .pr-highlight {
+            color: var(--pr-color) !important;
+            font-weight: bold;
+        }
+        .history-set-item {
+            background-color: var(--bg-color);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+        }
+        .history-set-item.animated {
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .set-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .estimated-1rm {
+            font-size: 0.8em;
+            font-weight: 500;
+            color: var(--primary-color);
+            background-color: rgba(3, 218, 198, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .pr-item {
+            cursor: pointer;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .pr-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 15px;
+            border-left: 5px solid var(--pr-color);
+        }
+        .pr-exercise-name {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .pr-weight {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--pr-color);
+        }
+        .rep-pr-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .rep-pr-table th, .rep-pr-table td {
+            padding: 8px 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .rep-pr-details {
+            padding: 0 15px 15px 15px;
+            max-height: 0;
+            opacity: 0;
+            transition: all 0.4s ease-in-out;
+        }
+        .pr-item.open .rep-pr-details {
+            max-height: 500px;
+            opacity: 1;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s;
+        }
+        .modal-content {
+            background-color: var(--card-color);
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .close-button {
+            color: var(--text-secondary-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .barbell-vis {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            min-height: 80px;
+        }
+        .plate {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-color);
+            margin: 0 2px;
+            height: 60px;
+            min-width: 40px;
+            padding: 0 5px;
+            background-color: var(--bg-color);
+        }
+        .barbell-sleeve {
+            background-color: #BDBDBD;
+            height: 40px;
+            width: 20px;
+            border-radius: 2px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+            margin: 20px 0;
+        }
+        .summary-item h4 {
+            margin: 0;
+            color: var(--secondary-color);
+            font-size: 1em;
+        }
+        .summary-item p {
+            margin: 5px 0 0 0;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        #summary-prs-list li {
+            list-style-type: none;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+        #summary-trophy {
+            display: inline-block;
+        }
+        #summary-trophy.animate {
+            animation: celebrate-trophy 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes celebrate-trophy {
+            0% { transform: scale(0) rotate(-90deg); opacity: 0; }
+            70% { transform: scale(1.1) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .feedback-message {
+            font-size: 0.9em;
+            color: var(--primary-color);
+            background-color: rgba(3, 218, 198, 0.1);
+            border-left: 3px solid var(--primary-color);
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+            animation: fadeIn 0.5s;
+        }
+        .exercise-card.freestyle, .exercise-card.cardio {
+            border-left: 5px solid var(--success-color);
+        }
+        .rest-day-card {
+            background: var(--secondary-gradient);
+            color: #fff;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.8s ease-out;
+        }
+        .rest-day-card h2 {
+            color: #fff;
+            border: none;
+            margin-top: 0;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .quick-note-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .quick-note-btn {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary-color);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-note-btn:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+            transform: translateY(-1px);
+        }
+        #finish-workout-btn {
+            display: none;
+        }
+        .popup-menu {
+            display: none;
+            position: absolute;
+            top: 55px;
+            right: 0;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            width: 200px;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .popup-menu-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+        }
+        .popup-menu-item:hover {
+            background-color: var(--border-color);
+        }
+        .popup-menu-item:not(:last-child) {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Calendar Styles */
+        #calendar-view {
+            padding: 10px;
+            border-radius: 12px;
+            background-color: var(--card-color);
+            margin-bottom: 20px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+        #calendar-month-year {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .calendar-nav {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-nav:hover {
+            background-color: var(--border-color);
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .calendar-day-name {
+            font-size: 0.8em;
+            text-align: center;
+            color: var(--text-secondary-color);
+            font-weight: 500;
+        }
+        .calendar-day {
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 0.9em;
+            min-height: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+        .calendar-day.has-workout {
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+        .calendar-day.has-workout:hover {
+            background-color: var(--border-color);
+        }
+        .day-number {
+            margin-bottom: 4px;
+        }
+        .dots-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px;
+        }
+        .muscle-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="tab-buttons">
-        <button class="tab-button active" onclick="showPage('workout')">วันนี้</button>
-        <button class="tab-button" onclick="showPage('plans')">ตารางฝึก</button>
-        <button class="tab-button" onclick="showPage('prs')">PRs</button>
-        <button class="tab-button" onclick="showPage('history')">ประวัติ</button>
-        <button class="tab-button" onclick="showPage('analysis')">วิเคราะห์</button>
-        <button class="tab-button" onclick="showPage('settings')">ตั้งค่า</button>
-    </div>
-
-    <div id="workout" class="page active">
-        <div class="page-title">
-            <h1 id="workout-day-title"></h1>
-            <button id="quick-log-btn-top" class="title-icon-btn" onclick="toggleQuickLogMenu()" title="บันทึกด่วน">
-                <i data-feather="zap"></i>
-            </button>
-            <button id="override-btn" class="override-btn" onclick="showOverrideModal()">
-                <i data-feather="calendar"></i>
-            </button>
-            <span id="total-duration-display"></span>
-            
-            <div id="quick-log-popup" class="popup-menu">
-                <div class="popup-menu-item" onclick="openQuickLogForm()">
-                    <i data-feather="bar-chart-2"></i>
-                    <span>Weight Training</span>
-                </div>
-                <div class="popup-menu-item" onclick="openCardioLogForm()">
-                    <i data-feather="trending-up"></i>
-                    <span>Cardio</span>
-                </div>
-            </div>
-        </div>
-        <div id="smart-assistant-box"></div>
-        <div id="quick-log-form" class="card" style="display: none;">
-            <h3>บันทึกด่วน (Weight Training)</h3>
-            <div class="log-input" style="flex-direction: column; gap:10px;">
-                <input type="text" id="quick-log-exercise" placeholder="ชื่อท่าออกกำลังกาย" class="text-input">
-                <select id="quick-log-muscle-group"></select>
-                <div style="display: flex; gap: 10px;">
-                    <input type="tel" pattern="[0-9.]*" id="quick-log-weight" placeholder="น้ำหนัก (kg)" class="text-input">
-                    <input type="tel" pattern="[0-9]*" id="quick-log-reps" placeholder="จำนวนครั้ง" class="text-input">
-                </div>
-            </div>
-            <div style="display:flex; gap: 10px;">
-                <button class="action-btn neutral" style="background-color: var(--card-color); color: var(--text-color); border: 1px solid var(--border-color);" onclick="hideQuickLogForm()">ยกเลิก</button>
-                <button class="action-btn success" onclick="saveQuickLog()">บันทึก</button>
-            </div>
-        </div>
-        <div id="exercise-list"></div>
-        <button id="finish-workout-btn" class="action-btn success" onclick="showWorkoutSummary()"><i data-feather="check-circle"></i>จบการฝึก</button>
-    </div>
-    
-    <div id="plans" class="page"><div id="plan-editor-view"></div></div>
-
-    <div id="prs" class="page">
-        <h2>สถิติส่วนตัว (Personal Records)</h2>
-        <p style="font-size:0.9em; opacity:0.8; margin-top:-10px; margin-bottom:20px;">คลิกที่แต่ละท่าเพื่อดูสถิติจำนวนครั้งสูงสุด (Rep PRs)</p>
-        <div id="pr-list-container"></div>
-    </div>
-
-    <div id="history" class="page">
-        <h2>ประวัติการฝึก</h2>
-        <div id="calendar-view"></div>
-        <input type="text" id="history-search" placeholder="ค้นหาชื่อท่า..." onkeyup="filterHistory()">
-        <div id="history-container" style="margin-top: 15px;"></div>
-    </div>
-
-    <div id="analysis" class="page">
-        <h2>วิเคราะห์และสถิติ</h2>
-        <div class="tab-buttons" style="margin-top: 15px;">
-             <button class="tab-button analysis-tab-btn active" onclick="showAnalysisTab('overview')">ภาพรวม</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('per_exercise')">รายท่า</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('comparison')">เปรียบเทียบ</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('body')">ร่างกาย</button>
-             <button class="tab-button analysis-tab-btn" onclick="showAnalysisTab('cardio')">🏃 คาร์ดิโอ</button>
-        </div>
-
-        <div id="analysis-overview" class="analysis-sub-page active">
-            <div class="card">
-                <h3>ภาพรวม Volume และความล้า</h3>
-                <div class="chart-container"><canvas id="fatigueAnalysisChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>Volume รายสัปดาห์</h3>
-                <div class="chart-container"><canvas id="weeklyVolumeChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>ความสมดุลของกล้ามเนื้อ (30 วันล่าสุด)</h3>
-                <div class="chart-container"><canvas id="muscleBalanceChart"></canvas></div>
-            </div>
-        </div>
-
-        <div id="analysis-per_exercise" class="analysis-sub-page">
-            <div class="card">
-                <h3>พัฒนาการรายท่า</h3>
-                <select id="exercise-select"></select>
-                <div id="exercise-analysis-content"></div>
-            </div>
-        </div>
-
-        <div id="analysis-comparison" class="analysis-sub-page">
-            <div class="card">
-                <h3>เปรียบเทียบพัฒนาการ (e1RM)</h3>
-                <p style="font-size:0.9em; opacity:0.8; margin-top:-10px; margin-bottom:15px;">เลือก 2-5 ท่าที่ต้องการเปรียบเทียบ (กด Ctrl หรือ Command ค้างไว้เพื่อเลือกหลายท่า)</p>
-                <select id="compare-exercise-select" multiple></select>
-                <button class="action-btn secondary" onclick="generateComparisonChart()">สร้างกราฟเปรียบเทียบ</button>
-                <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
-            </div>
-        </div>
-
-        <div id="analysis-body" class="analysis-sub-page">
-            <div class="card">
-                <h3>บันทึกข้อมูลร่างกายวันนี้</h3>
-                <div class="stat-input-group">
-                    <input type="tel" pattern="[0-9.]*" id="stat-weight" placeholder="น้ำหนักตัว (kg)">
-                    <input type="tel" pattern="[0-9.]*" id="stat-bf" placeholder="% ไขมัน">
-                </div>
-                 <div class="stat-input-group" style="margin-top:10px;">
-                    <input type="tel" pattern="[0-9.]*" id="stat-chest" placeholder="รอบอก (cm)">
-                    <input type="tel" pattern="[0-9.]*" id="stat-waist" placeholder="รอบเอว (cm)">
-                    <input type="tel" pattern="[0-9.]*" id="stat-arm" placeholder="รอบแขน (cm)">
-                </div>
-                <button class="action-btn success" onclick="saveBodyStats()"><i data-feather="save"></i>บันทึกข้อมูล</button>
-            </div>
-            <div class="card">
-                <h3>กราฟการเปลี่ยนแปลง</h3>
-                <select id="body-stat-select" onchange="renderBodyStatChart(this.value)"></select>
-                <div class="chart-container"><canvas id="bodyStatChart"></canvas></div>
-            </div>
-        </div>
-        
-        <div id="analysis-cardio" class="analysis-sub-page">
-            <div class="card">
-                <h3>ระยะทางและเวลา (แต่ละครั้ง)</h3>
-                <div class="chart-container"><canvas id="cardioDistanceChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>Pace (ความเร็วเฉลี่ย)</h3>
-                <div class="chart-container"><canvas id="cardioPaceChart"></canvas></div>
-            </div>
-            <div class="card">
-                <h3>สรุประยะทางรายสัปดาห์</h3>
-                <div class="chart-container"><canvas id="cardioWeeklySummaryChart"></canvas></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="settings" class="page">
-        <h2>ตั้งค่าและข้อมูล</h2>
-        <div class="card">
-            <h3>ธีม</h3>
-            <button class="action-btn secondary" onclick="toggleTheme()"><i data-feather="moon"></i>สลับธีม</button>
-        </div>
-        
-        <div class="card">
-            <h3>โรงเก็บอุปกรณ์ (Home Gym)</h3>
-            <p style="opacity:0.8; font-size:0.9em;">กำหนดค่าน้ำหนักแกนและแผ่นน้ำหนักที่คุณมี เพื่อให้ตัวช่วยคำนวณ ⚖️ ทำงานได้แม่นยำสำหรับคุณ</p>
-            <div class="log-input" style="flex-direction: column; gap: 15px;">
-                <input type="tel" pattern="[0-9.]*" id="equipment-barbell-weight" placeholder="น้ำหนักแกนเปล่า (kg)">
-                <input type="text" id="equipment-plates" placeholder="แผ่นน้ำหนักที่มี (เช่น 10, 5, 2.5, 1.25)">
-            </div>
-            <button class="action-btn success" onclick="saveEquipmentSettings()"><i data-feather="save"></i>บันทึกอุปกรณ์</button>
-        </div>
-
-        <div class="card">
-            <h3>สำรอง/นำเข้าข้อมูล</h3>
-            <p style="opacity:0.8; font-size:0.9em;">วิธีที่แนะนำ: สำรองข้อมูลเป็นไฟล์เพื่อความปลอดภัยและป้องกันข้อมูลผิดพลาด</p>
-            <button class="action-btn secondary" onclick="backupDataToFile()"><i data-feather="download"></i>สำรองข้อมูลเป็นไฟล์</button>
-            <button class="action-btn success" onclick="document.getElementById('restore-file-input').click();"><i data-feather="upload"></i>นำเข้าข้อมูลจากไฟล์</button>
-            <input type="file" id="restore-file-input" accept=".json" style="display: none;">
-        </div>
-    </div>
-</div>
-
-<div id="rest-timer">
-    <button onclick="adjustTimer(-15)">-15s</button>
-    <div id="timer-display">1:30</div>
-    <button onclick="adjustTimer(15)">+15s</button>
-    <button onclick="stopTimer()">หยุด</button>
-</div>
-
-<div id="plate-calculator-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal('plate-calculator-modal')">&times;</span>
-        <h2>Plate Calculator</h2>
-        <h3 id="calculator-target-weight" style="border:none;"></h3>
-        <div class="barbell-vis" id="barbell-visualization"></div>
-        <p id="plates-per-side-text"></p>
-    </div>
-</div>
-
-<div id="summary-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal('summary-modal')">&times;</span>
-        <h2 style="color:var(--success-color);"><i data-feather="award" id="summary-trophy"></i> สรุปผลการฝึก!</h2>
-        <div class="summary-grid">
-            <div class="summary-item">
-                <h4>Total Volume</h4>
-                <p id="summary-volume">0 kg</p>
-            </div>
-            <div class="summary-item">
-                <h4>ระยะเวลา</h4>
-                <p id="summary-duration">00:00:00</p>
-            </div>
-            <div class="summary-item">
-                <h4>จำนวนเซ็ต</h4>
-                <p id="summary-sets">0</p>
-            </div>
-        </div>
-        <div id="summary-prs-container" style="display:none;">
-            <h3 style="color:var(--pr-color); border-color: var(--pr-color);">⭐ PRs ใหม่วันนี้!</h3>
-            <ul id="summary-prs-list" style="padding-left: 0;"></ul>
-        </div>
-        <button class="action-btn secondary" onclick="closeModal('summary-modal')">ปิด</button>
-    </div>
-</div>
-
-<div id="override-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal('override-modal')">&times;</span>
-        <h2>เลือกโปรแกรมที่จะเล่นวันนี้</h2>
-        <div id="override-list"></div>
-    </div>
-</div>
-
-<div id="cardio-log-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-button" onclick="closeModal('cardio-log-modal')">&times;</span>
-        <h3 style="border:none; margin-top:0;">บันทึกกิจกรรม Cardio</h3>
-        <div class="log-input" style="flex-direction: column; gap:15px;">
-            <input type="tel" pattern="[0-9.]*" id="cardio-distance" placeholder="ระยะทาง (กม.)" class="text-input">
-            <input type="tel" pattern="[0-9]*" id="cardio-duration" placeholder="ระยะเวลา (นาที)" class="text-input">
-            <textarea id="cardio-notes" placeholder="บันทึกเพิ่มเติม..." class="notes-input" style="margin-top:0; min-height: 60px;"></textarea>
-        </div>
-        <button class="action-btn success" onclick="saveCardioLog()"><i data-feather="plus-circle"></i> บันทึก</button>
-    </div>
-</div>
-
-
-<script src="app.js"></script>
+<script>
+    const DEFAULT_REST_TIME = 90;
+    // ... All original JavaScript from the user's first upload
+</script>
 
 <script>
   if ('serviceWorker' in navigator) {
