@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#03dac6">
+    <meta name="description" content="A Progressive Web App for tracking gym workouts and personal records.">
+    <title>Gym-Log Pro (AI Coach Edition)</title>
+
+    <link rel="icon" href="icons/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="tab-buttons">
+        <button class="tab-button active" data-page="workout">วันนี้</button>
+        <button class="tab-button" data-page="plans">ตารางฝึก</button>
+        <button class="tab-button" data-page="prs">PRs</button>
+        <button class="tab-button" data-page="history">ประวัติ</button>
+        <button class="tab-button" data-page="analysis">วิเคราะห์</button>
+        <button class="tab-button" data-page="settings">ตั้งค่า</button>
+    </div>
+
+    <div id="workout" class="page active">
+        <div class="page-title">
+            <h1 id="workout-day-title"></h1>
+            <button id="quick-log-btn-top" class="title-icon-btn" title="บันทึกด่วน">
+                <i data-feather="zap"></i>
+            </button>
+            <button id="override-btn" class="override-btn">
+                <i data-feather="calendar"></i>
+            </button>
+            <span id="total-duration-display"></span>
+            <div id="quick-log-popup" class="popup-menu hidden">
+                <div class="popup-menu-item" data-action="openQuickLogForm">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Weight Training</span>
+                </div>
+                <div class="popup-menu-item" data-action="openCardioLogForm">
+                    <i data-feather="trending-up"></i>
+                    <span>Cardio</span>
+                </div>
+            </div>
+        </div>
+        <div id="smart-assistant-box"></div>
+        <div id="quick-log-form" class="card hidden">
+            <h3>บันทึกด่วน (Weight Training)</h3>
+            <div class="log-input flex-column-gap-10">
+                <input type="text" id="quick-log-exercise" placeholder="ชื่อท่าออกกำลังกาย" class="text-input">
+                <select id="quick-log-muscle-group"></select>
+                <div class="d-flex gap-10">
+                    <input type="tel" pattern="[0-9.]*" id="quick-log-weight" placeholder="น้ำหนัก (kg)" class="text-input">
+                    <input type="tel" pattern="[0-9]*" id="quick-log-reps" placeholder="จำนวนครั้ง" class="text-input">
+                </div>
+            </div>
+            <div class="d-flex gap-10">
+                <button class="action-btn neutral quick-log-cancel">ยกเลิก</button>
+                <button class="action-btn success" id="save-quick-log-btn">บันทึก</button>
+            </div>
+        </div>
+        <div id="exercise-list"></div>
+        <button id="finish-workout-btn" class="action-btn success hidden"><i data-feather="check-circle"></i>จบการฝึก</button>
+    </div>
+
+    <div id="plans" class="page hidden"><div id="plan-editor-view"></div></div>
+
+    <div id="prs" class="page hidden">
+        <h2>สถิติส่วนตัว (Personal Records)</h2>
+        <p class="sub-heading">คลิกที่แต่ละท่าเพื่อดูสถิติจำนวนครั้งสูงสุด (Rep PRs)</p>
+        <div id="pr-list-container"></div>
+    </div>
+
+    <div id="history" class="page hidden">
+        <h2>ประวัติการฝึก</h2>
+        <div id="calendar-view"></div>
+        <input type="text" id="history-search" placeholder="ค้นหาชื่อท่า...">
+        <div id="history-container" class="mt-15"></div>
+    </div>
+
+    <div id="analysis" class="page hidden">
+        <h2>วิเคราะห์และสถิติ</h2>
+        <div class="tab-buttons mt-15" id="analysis-tabs">
+            <button class="tab-button analysis-tab-btn active" data-tab="overview">ภาพรวม</button>
+            <button class="tab-button analysis-tab-btn" data-tab="per_exercise">รายท่า</button>
+            <button class="tab-button analysis-tab-btn" data-tab="comparison">เปรียบเทียบ</button>
+            <button class="tab-button analysis-tab-btn" data-tab="body">ร่างกาย</button>
+            <button class="tab-button analysis-tab-btn" data-tab="cardio">🏃 คาร์ดิโอ</button>
+        </div>
+
+        <div id="analysis-overview" class="analysis-sub-page active">
+            <div class="card">
+                <h3>ภาพรวม Volume และความล้า</h3>
+                <div class="chart-container"><canvas id="fatigueAnalysisChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Volume รายสัปดาห์</h3>
+                <div class="chart-container"><canvas id="weeklyVolumeChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>ความสมดุลของกล้ามเนื้อ (30 วันล่าสุด)</h3>
+                <div class="chart-container"><canvas id="muscleBalanceChart"></canvas></div>
+            </div>
+        </div>
+
+        <div id="analysis-per_exercise" class="analysis-sub-page hidden">
+            <div class="card">
+                <h3>พัฒนาการรายท่า</h3>
+                <select id="exercise-select"></select>
+                <div id="exercise-analysis-content"></div>
+            </div>
+        </div>
+
+        <div id="analysis-comparison" class="analysis-sub-page hidden">
+            <div class="card">
+                <h3>เปรียบเทียบพัฒนาการ (e1RM)</h3>
+                <p class="sub-heading">เลือก 2-5 ท่าที่ต้องการเปรียบเทียบ (กด Ctrl หรือ Command ค้างไว้เพื่อเลือกหลายท่า)</p>
+                <select id="compare-exercise-select" multiple></select>
+                <button id="generate-comparison-chart-btn" class="action-btn secondary">สร้างกราฟเปรียบเทียบ</button>
+                <div class="chart-container"><canvas id="comparisonChart"></canvas></div>
+            </div>
+        </div>
+
+        <div id="analysis-body" class="analysis-sub-page hidden">
+            <div class="card">
+                <h3>บันทึกข้อมูลร่างกายวันนี้</h3>
+                <div class="stat-input-group">
+                    <input type="tel" pattern="[0-9.]*" id="stat-weight" placeholder="น้ำหนักตัว (kg)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-bf" placeholder="% ไขมัน">
+                </div>
+                <div class="stat-input-group mt-10">
+                    <input type="tel" pattern="[0-9.]*" id="stat-chest" placeholder="รอบอก (cm)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-waist" placeholder="รอบเอว (cm)">
+                    <input type="tel" pattern="[0-9.]*" id="stat-arm" placeholder="รอบแขน (cm)">
+                </div>
+                <button id="save-body-stats-btn" class="action-btn success"><i data-feather="save"></i>บันทึกข้อมูล</button>
+            </div>
+            <div class="card">
+                <h3>กราฟการเปลี่ยนแปลง</h3>
+                <select id="body-stat-select"></select>
+                <div class="chart-container"><canvas id="bodyStatChart"></canvas></div>
+            </div>
+        </div>
+
+        <div id="analysis-cardio" class="analysis-sub-page hidden">
+            <div class="card">
+                <h3>ระยะทางและเวลา (แต่ละครั้ง)</h3>
+                <div class="chart-container"><canvas id="cardioDistanceChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>Pace (ความเร็วเฉลี่ย)</h3>
+                <div class="chart-container"><canvas id="cardioPaceChart"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>สรุประยะทางรายสัปดาห์</h3>
+                <div class="chart-container"><canvas id="cardioWeeklySummaryChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings" class="page hidden">
+        <h2>ตั้งค่าและข้อมูล</h2>
+        <div class="card">
+            <h3>ธีม</h3>
+            <button id="toggle-theme-btn" class="action-btn secondary"><i data-feather="moon"></i>สลับธีม</button>
+        </div>
+        <div class="card">
+            <h3>โรงเก็บอุปกรณ์ (Home Gym)</h3>
+            <p class="sub-heading-sm">กำหนดค่าน้ำหนักแกนและแผ่นน้ำหนักที่คุณมี เพื่อให้ตัวช่วยคำนวณ ⚖️ ทำงานได้แม่นยำสำหรับคุณ</p>
+            <div class="log-input flex-column-gap-15">
+                <input type="tel" pattern="[0-9.]*" id="equipment-barbell-weight" placeholder="น้ำหนักแกนเปล่า (kg)">
+                <input type="text" id="equipment-plates" placeholder="แผ่นน้ำหนักที่มี (เช่น 10, 5, 2.5, 1.25)">
+            </div>
+            <button id="save-equipment-btn" class="action-btn success"><i data-feather="save"></i>บันทึกอุปกรณ์</button>
+        </div>
+        <div class="card">
+            <h3>สำรอง/นำเข้าข้อมูล</h3>
+            <p class="sub-heading-sm">วิธีที่แนะนำ: สำรองข้อมูลเป็นไฟล์เพื่อความปลอดภัยและป้องกันข้อมูลผิดพลาด</p>
+            <button id="backup-data-btn" class="action-btn secondary"><i data-feather="download"></i>สำรองข้อมูลเป็นไฟล์</button>
+            <button id="restore-data-btn" class="action-btn success"><i data-feather="upload"></i>นำเข้าข้อมูลจากไฟล์</button>
+            <input type="file" id="restore-file-input" accept=".json" class="hidden">
+        </div>
+    </div>
+</div>
+
+<div id="rest-timer" class="hidden">
+    <button data-timer-adjust="-15">-15s</button>
+    <div id="timer-display">1:30</div>
+    <button data-timer-adjust="15">+15s</button>
+    <button id="stop-timer-btn">หยุด</button>
+</div>
+
+<div id="plate-calculator-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button" data-modal="plate-calculator-modal">&times;</span>
+        <h2>Plate Calculator</h2>
+        <h3 id="calculator-target-weight" class="no-border"></h3>
+        <div class="barbell-vis" id="barbell-visualization"></div>
+        <p id="plates-per-side-text"></p>
+    </div>
+</div>
+
+<div id="summary-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button" data-modal="summary-modal">&times;</span>
+        <h2 class="text-success"><i data-feather="award" id="summary-trophy"></i> สรุปผลการฝึก!</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <h4>Total Volume</h4>
+                <p id="summary-volume">0 kg</p>
+            </div>
+            <div class="summary-item">
+                <h4>ระยะเวลา</h4>
+                <p id="summary-duration">00:00:00</p>
+            </div>
+            <div class="summary-item">
+                <h4>จำนวนเซ็ต</h4>
+                <p id="summary-sets">0</p>
+            </div>
+        </div>
+        <div id="summary-prs-container" class="hidden">
+            <h3 class="text-pr border-pr">⭐ PRs ใหม่วันนี้!</h3>
+            <ul id="summary-prs-list" class="no-padding-left"></ul>
+        </div>
+        <button class="action-btn secondary" data-modal-close="summary-modal">ปิด</button>
+    </div>
+</div>
+
+<div id="override-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button" data-modal="override-modal">&times;</span>
+        <h2>เลือกโปรแกรมที่จะเล่นวันนี้</h2>
+        <div id="override-list"></div>
+    </div>
+</div>
+
+<div id="cardio-log-modal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close-button" data-modal="cardio-log-modal">&times;</span>
+        <h3 class="no-border mt-0">บันทึกกิจกรรม Cardio</h3>
+        <div class="log-input flex-column-gap-15">
+            <input type="tel" pattern="[0-9.]*" id="cardio-distance" placeholder="ระยะทาง (กม.)" class="text-input">
+            <input type="tel" pattern="[0-9]*" id="cardio-duration" placeholder="ระยะเวลา (นาที)" class="text-input">
+            <textarea id="cardio-notes" placeholder="บันทึกเพิ่มเติม..." class="notes-input mt-0 min-height-60"></textarea>
+        </div>
+        <button id="save-cardio-log-btn" class="action-btn success"><i data-feather="plus-circle"></i> บันทึก</button>
+    </div>
+</div>
+
+</body>
+</html>
