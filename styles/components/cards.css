@@ -1,0 +1,249 @@
+/* styles/components/cards.css */
+
+/* --- สไตล์การ์ดหลัก (Base Card) --- */
+/* เป็นสไตล์พื้นฐานที่การ์ดทุกใบในแอปจะใช้งานร่วมกัน */
+.card {
+    background-color: var(--card-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    transition: all .3s;
+    box-shadow: var(--shadow-sm);
+    position: relative; /* สำหรับการวาง element ลูกแบบ absolute */
+}
+
+/* สไตล์การ์ดสำหรับ Light Mode */
+body.light-mode .card {
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.07);
+}
+
+/* --- การ์ดออกกำลังกาย (Exercise Card) --- */
+/* สไตล์เฉพาะสำหรับการ์ดในหน้าออกกำลังกายปัจจุบัน */
+.ex-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ex-title-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.exercise-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--text-color);
+    position: relative;
+    transition: opacity 0.4s ease;
+}
+
+/* เส้นขีดฆ่าเมื่อออกกำลังกายเสร็จ */
+.exercise-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 2px;
+    background-color: var(--text-secondary-color);
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.completed .exercise-title {
+    opacity: 0.5;
+}
+
+.completed .exercise-title::after {
+    transform: scaleX(1);
+}
+
+.pr-star {
+    color: var(--pr-color);
+    font-size: 1.2em;
+    display: none;
+    transition: transform 0.3s;
+}
+
+.exercise-notes {
+    font-size: 1em;
+    color: var(--text-secondary-color);
+    margin-bottom: 15px;
+}
+
+/* เส้นขอบพิเศษสำหรับการ์ดที่เพิ่มเข้ามาเอง (Freestyle / Cardio) */
+.exercise-card.freestyle,
+.exercise-card.cardio {
+    border-left: 5px solid var(--success-color);
+}
+
+/* --- การ์ดคำแนะนำ (Suggestion Card) --- */
+.coach-suggestion-text {
+    font-size: 0.85em;
+    color: var(--primary-color);
+    font-style: italic;
+    opacity: 0.9;
+    display: block;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    animation: fadeIn 0.5s;
+}
+
+.suggestion-card {
+    border-left: 5px solid var(--warning-color);
+    padding: 15px;
+    background-color: rgba(245, 158, 11, 0.1);
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.suggestion-card.danger {
+    border-color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* --- การ์ดวันพัก (Rest Day Card) --- */
+.rest-day-card {
+    background: var(--primary-gradient);
+    color: #fff;
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--shadow-md);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.rest-day-card h2,
+.rest-day-card h4 {
+    color: #fff;
+    border: none;
+}
+
+.rest-day-card h2 {
+    margin-top: 0;
+    font-size: 1.8em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.rest-day-section {
+    padding: 15px 0;
+}
+
+.smart .rest-day-section:not(:first-of-type) {
+    border-top: 1px solid var(--border-color);
+}
+
+
+/* --- การ์ดสถิติ (PR Card) --- */
+.pr-item {
+    cursor: pointer;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.pr-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 15px;
+    border-left: 5px solid var(--pr-color);
+}
+
+.pr-exercise-name {
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.pr-weight {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--pr-color);
+}
+
+.rep-pr-details {
+    padding: 0 15px 15px 15px;
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.4s ease-in-out;
+}
+
+.pr-item.open .rep-pr-details {
+    max-height: 500px;
+    opacity: 1;
+}
+
+/* --- การ์ดบันทึกด่วน (Quick Log Panel) --- */
+.card.quick-log-panel {
+    display: flow-root;
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-width: 0;
+    opacity: 0;
+    transition: all 0.4s ease-out;
+}
+
+.card.quick-log-panel.visible {
+    max-height: 500px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 15px;
+    border-width: 1px;
+    opacity: 1;
+}
+
+.card.quick-log-panel h3 {
+    margin-top: 0;
+}
+
+/* --- สไตล์สำหรับซ่อน/แสดงการ์ดที่เสร็จแล้ว --- */
+.exercise-card {
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, margin 0.5s ease-in-out, padding 0.5s ease-in-out;
+    overflow: hidden;
+}
+
+.collapsible-hidden {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-width: 0 !important;
+}
+
+#completed-controls {
+    transition: all 0.3s;
+}
+
+/* --- สไตล์เฉพาะของการ์ดในหน้าประวัติ --- */
+.history-card-title {
+    color: var(--text-color);
+    margin: 0 0 10px 0;
+}
+
+.history-card-stats {
+    font-size: 0.9em;
+    color: var(--text-secondary-color);
+}
+
+.history-card-divider {
+    border-color: var(--border-color);
+    opacity: 0.5;
+    margin: 15px 0;
+}

@@ -1,0 +1,311 @@
+/* styles/components/buttons.css */
+
+/* --- ปุ่มหลัก (Action Buttons) --- */
+/* สไตล์พื้นฐานสำหรับปุ่มดำเนินการหลักทั้งหมด */
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.05em;
+    color: #ffffff;
+}
+
+/* เอฟเฟกต์เมื่อนำเมาส์ไปวางบนปุ่ม */
+.action-btn:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+/* รูปแบบสีต่างๆ ของปุ่มหลัก */
+.action-btn.primary { background: var(--primary-color); }
+.action-btn.secondary { background: var(--secondary-gradient); }
+.action-btn.success { background: var(--success-gradient); }
+.action-btn.danger { background: var(--danger-color); }
+.action-btn.neutral { background-color: var(--neutral-color); }
+
+/* สไตล์ปุ่ม neutral สำหรับ Light Mode */
+body.light-mode .action-btn.neutral {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+/* --- ปุ่มอรรถประโยชน์ (Utility Buttons) --- */
+/* สไตล์สำหรับปุ่มเล็กๆ ที่ใช้ปรับค่า (เช่น +, -) หรือเปิดเครื่องมือ */
+.util-btn {
+    padding: 0;
+    height: 44px;
+    width: 44px;
+    flex-shrink: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.util-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* --- ปุ่มไอคอนบนหัวข้อ (Title Icon Buttons) --- */
+/* สไตล์สำหรับปุ่มไอคอนที่อยู่บน Title Bar เช่น ปุ่ม Coach Corner, Override */
+.title-icon-btn, .override-btn {
+    font-size: 1.2em;
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.title-icon-btn:hover, .override-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.override-btn i {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.override-btn.danger-style {
+    background-color: var(--danger-color);
+    color: #fff;
+    border-color: var(--danger-color);
+}
+
+
+/* --- ปุ่มย้อนกลับ (Back Button) --- */
+h2 .back-button {
+    font-size: 0.8em;
+    color: var(--text-color);
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    padding: 5px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    margin-right: 15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* --- ปุ่มแยก (Split Button) --- */
+/* สไตล์สำหรับปุ่มที่มี 2 ส่วน (บันทึก และ ทำซ้ำ) */
+.split-button-container {
+    display: flex;
+    width: 100%;
+    margin: 10px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--success-gradient);
+    color: #fff;
+    transition: all 0.2s;
+}
+
+.split-button-container:hover {
+    opacity: 0.9;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.split-button-main {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1.05em;
+    background: transparent;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.split-button-repeat {
+    flex-shrink: 0;
+    width: 50px;
+    padding: 12px;
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 1.05em;
+    background: transparent;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.split-button-repeat:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+/* --- กลุ่มปุ่ม (Button Group) --- */
+/* สไตล์สำหรับจัดกลุ่มปุ่มเล็กๆ เข้าด้วยกัน */
+.btn-group button, .btn-group input {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: var(--text-secondary-color);
+    border-radius: 4px;
+    padding: 5px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.btn-group .action-btn {
+    flex: 1;
+    width: auto;
+    margin: 0;
+}
+
+.btn-group button:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+/* --- ปุ่มลบ (Delete Button) --- */
+.btn-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--text-secondary-color);
+}
+
+.btn-delete:hover {
+    color: var(--danger-color) !important;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* --- ปุ่มโน้ตด่วน (Quick Note Button) --- */
+.quick-note-btn {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-note-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+    transform: translateY(-1px);
+}
+
+/* --- ปุ่มนำทางปฏิทิน (Calendar Navigation) --- */
+.calendar-nav {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-nav:hover {
+    background-color: var(--border-color);
+}
+
+/* --- ปุ่มเฉพาะหน้า (Page-Specific Buttons) --- */
+/* ปุ่มสำหรับหน้าจัดการตารางฝึก */
+.plan-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.plan-actions .action-btn {
+    flex: 1;
+    margin: 0;
+}
+
+/* ปุ่มสำหรับหน้าประวัติ */
+.history-card-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--text-secondary-color);
+    line-height: 1;
+}
+
+.history-card-delete-btn:hover {
+    color: var(--danger-color);
+}
+
+.history-card-delete-btn .feather {
+    width: 1.4em;
+    height: 1.4em;
+}
+
+.history-delete-exercise-btn {
+    width: 100%;
+    margin-top: 10px;
+    font-size: 0.9em;
+    padding: 8px;
+}
+
+.history-menu-btn {
+    padding: 0;
+    height: 38px;
+    width: 38px;
+    flex-shrink: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.history-menu-btn:hover {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}

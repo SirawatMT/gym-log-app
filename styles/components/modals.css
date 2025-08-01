@@ -1,0 +1,108 @@
+/* styles/components/modals.css */
+
+/* --- สไตล์ Modal แบบเก่า (Legacy Modal) --- */
+/* ใช้สำหรับ Summary, Plate Calculator, Coach's Corner */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+    animation: fadeIn 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: var(--card-color);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    margin: 0;
+}
+
+.close-button {
+    color: var(--text-secondary-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* --- สไตล์ Modal อเนกประสงค์ (Universal App Modal) --- */
+/* ใช้สำหรับ Alert, Confirm, Prompt */
+.app-modal-overlay {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.app-modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.app-modal-content {
+    background-color: var(--card-color);
+    padding: 25px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.app-modal-overlay.visible .app-modal-content {
+    transform: scale(1);
+}
+
+.app-modal-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    color: var(--primary-color);
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.app-modal-message {
+    margin-bottom: 20px;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.app-modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.app-modal-buttons .action-btn {
+    margin: 0;
+    flex: 1;
+}

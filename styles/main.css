@@ -1,0 +1,33 @@
+/* styles/main.css */
+
+/* --- ไฟล์หลักสำหรับนำเข้า CSS ทั้งหมด (Main CSS Entry Point) --- */
+/* * ไฟล์นี้ทำหน้าที่เป็นศูนย์กลางในการนำเข้า (import) ไฟล์ CSS ย่อยๆ ทั้งหมด
+ * เพื่อจัดระเบียบและทำให้ง่ายต่อการจัดการสไตล์ของทั้งแอปพลิเคชัน
+ * ลำดับการนำเข้ามีความสำคัญ โดยจะเริ่มจากไฟล์พื้นฐาน (base) ก่อน
+ * แล้วตามด้วยส่วนประกอบย่อย (components) ต่างๆ
+ */
+
+/* 1. นำเข้าสไตล์พื้นฐาน (Base Styles) */
+/* ประกอบด้วยตัวแปรสี, สไตล์ body, h1, h2, และคลาสอรรถประโยชน์ */
+@import url('base.css');
+
+/* 2. นำเข้าสไตล์ของส่วนประกอบ (Component Styles) */
+/* แต่ละไฟล์จะดูแลสไตล์ของส่วนประกอบหนึ่งๆ โดยเฉพาะ */
+
+/* Animation Keyframes */
+@import url('components/animations.css');
+
+/* สไตล์สำหรับปุ่มทุกชนิด */
+@import url('components/buttons.css');
+
+/* สไตล์สำหรับการ์ดแสดงผลต่างๆ */
+@import url('components/cards.css');
+
+/* สไตล์สำหรับฟอร์ม (input, select, textarea) */
+@import url('components/forms.css');
+
+/* สไตล์สำหรับโครงสร้างหลักของหน้า (layout) */
+@import url('components/layout.css');
+
+/* สไตล์สำหรับหน้าต่าง Pop-up (Modal) */
+@import url('components/modals.css');

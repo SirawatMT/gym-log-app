@@ -1,0 +1,73 @@
+/* styles/components/animations.css */
+
+/* --- Keyframes สำหรับ Animation ต่างๆ --- */
+
+/* * fadeIn: 
+ * ทำให้ element ค่อยๆ ปรากฏขึ้นพร้อมกับเลื่อนขึ้นเล็กน้อย
+ * ใช้กับการเปลี่ยนหน้า, เปิด Modal, และแสดงข้อความ
+ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* * slideIn:
+ * ทำให้ element เลื่อนเข้ามาจากทางซ้ายพร้อมกับค่อยๆ ชัดขึ้น
+ * ใช้กับรายการเซ็ตที่ถูกเพิ่มเข้ามาใหม่ในหน้าประวัติ
+ */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* * celebrate-trophy:
+ * Animation พิเศษสำหรับไอคอนถ้วยรางวัลในหน้าสรุปผล
+ * ทำให้ไอคอนหมุนและขยายตัวขึ้นมาเหมือนการเฉลิมฉลอง
+ */
+@keyframes celebrate-trophy {
+    0% {
+        transform: scale(0) rotate(-90deg);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* --- NEW: Keyframe สำหรับอนิเมชั่นยืนยันการบันทึก --- */
+/* * flash-success:
+ * ทำให้ element กะพริบเป็นสีเขียวเพื่อยืนยันการกระทำ
+ * ใช้กับการ์ดออกกำลังกายเมื่อบันทึกเซ็ตสำเร็จ
+ */
+@keyframes flash-success {
+  0% {
+    background-color: var(--card-color);
+  }
+  50% {
+    background-color: rgba(0, 255, 65, 0.2); /* สีเขียว success แบบโปร่งใส */
+  }
+  100% {
+    background-color: var(--card-color);
+  }
+}
+
+/* --- NEW: คลาสสำหรับเรียกใช้อนิเมชั่น --- */
+.flash-success {
+    animation: flash-success 0.5s ease-in-out;
+}

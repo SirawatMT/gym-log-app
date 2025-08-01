@@ -1,0 +1,448 @@
+/* styles/components/layout.css */
+
+/* --- โครงสร้างหน้าหลัก (Page Layout) --- */
+/* สไตล์สำหรับ container หลักของแต่ละหน้า */
+.page, .analysis-sub-page {
+    /* ใช้ animation เพื่อให้การเปลี่ยนหน้าดูนุ่มนวล */
+    animation: fadeIn 0.5s;
+}
+
+.page.active, .analysis-sub-page.active {
+    display: block;
+}
+
+/* --- แถบนำทาง (Tab Navigation) --- */
+.tab-buttons {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-color);
+    border-radius: 12px;
+    padding: 5px;
+    box-shadow: var(--shadow-sm);
+}
+
+.tab-button {
+    flex-grow: 1;
+    padding: 10px 5px;
+    text-align: center;
+    background-color: transparent;
+    border: none;
+    color: var(--text-secondary-color);
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all .3s;
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    background-color: rgba(0, 191, 255, 0.1); /* ใช้สี primary-color แบบโปร่งใส */
+}
+
+/* --- หัวข้อหน้า (Page Title) --- */
+.page-title {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+#workout-day-title {
+    flex-grow: 1;
+    margin-right: auto;
+}
+
+#total-duration-display {
+    font-size: 0.7em;
+    font-weight: 500;
+    color: var(--text-secondary-color);
+    background-color: var(--card-color);
+    padding: 4px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+/* --- รายการ (List Item) --- */
+/* สไตล์พื้นฐานสำหรับรายการต่างๆ เช่น รายการท่าออกกำลังกายในตารางฝึก */
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+/* --- โครงสร้างปฏิทิน (Calendar Layout) --- */
+#calendar-view {
+    padding: 10px;
+    border-radius: 12px;
+    background-color: var(--card-color);
+    margin-bottom: 20px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+#calendar-month-year {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day-name {
+    font-size: 0.8em;
+    text-align: center;
+    color: var(--text-secondary-color);
+    font-weight: 500;
+}
+
+.calendar-day {
+    text-align: center;
+    padding: 8px 4px;
+    font-size: 0.9em;
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+}
+
+.calendar-day.has-workout {
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-day.has-workout:hover {
+    background-color: var(--border-color);
+}
+
+.day-number {
+    margin-bottom: 4px;
+}
+
+.dots-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+}
+
+.muscle-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+/* --- โครงสร้างหน้าประวัติ (History Layout) --- */
+.history-exercise-container {
+    padding: 5px 0;
+}
+
+.history-exercise-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.history-exercise-header .util-btn,
+.history-exercise-header .history-menu-btn {
+    height: 38px;
+    width: 38px;
+}
+
+.history-cardio-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--success-color);
+    flex-grow: 1;
+}
+
+.history-cardio-notes {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-top: 5px;
+    margin-left: 34px;
+}
+
+.history-set-details-container {
+    margin-left: 15px;
+    margin-top: 5px;
+}
+
+.history-exercise-notes-p {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.history-exercise-title {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text-color);
+    padding: 5px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    flex-grow: 1;
+}
+
+.history-exercise-title:hover {
+    background-color: var(--border-color);
+}
+
+.history-set-item {
+    background-color: var(--bg-color);
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 5px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.set-item-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.estimated-1rm {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: var(--success-color);
+    background-color: rgba(0, 255, 65, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* --- โครงสร้างอื่นๆ (Other Layouts) --- */
+.chart-container {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+    margin: 20px 0;
+}
+
+.summary-item h4 {
+    margin: 0;
+    color: var(--text-secondary-color);
+    font-size: 1em;
+}
+
+.summary-item p {
+    margin: 5px 0 0 0;
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+#summary-prs-list li {
+    list-style-type: none;
+    background-color: var(--bg-color);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.popup-menu {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background-color: var(--card-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    width: 200px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.popup-menu-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-color);
+}
+
+.popup-menu-item:hover {
+    background-color: var(--border-color);
+}
+
+.popup-menu-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+#program-selection-view {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background-color: var(--card-color);
+    margin-top: 15px;
+}
+
+#workout.selection-mode-active #exercise-list,
+#workout.selection-mode-active .quick-log-panel,
+#workout.selection-mode-active #completed-controls,
+#workout.selection-mode-active #finish-workout-btn {
+    display: none !important;
+}
+
+#rest-timer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--card-color);
+    padding: 10px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,.5);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#timer-display {
+    font-size: 2em;
+    color: var(--success-color);
+    font-weight: 700;
+}
+
+.barbell-vis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    min-height: 80px;
+}
+
+.plate {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--text-color);
+    margin: 0 2px;
+    height: 60px;
+    min-width: 40px;
+    padding: 0 5px;
+    background-color: var(--bg-color);
+}
+
+.barbell-sleeve {
+    background-color: #888888; /* Changed from hardcoded color */
+    height: 40px;
+    width: 20px;
+    border-radius: 2px;
+}
+
+.feather {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.15em;
+    stroke-width: 2.5;
+    pointer-events: none;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--danger-color);
+    border-radius: 50%;
+    border: 2px solid var(--card-color);
+    transition: transform 0.2s;
+    animation: pulse-glow 2s infinite; 
+}
+
+.notification-badge.hidden {
+    transform: scale(0);
+    animation: none;
+}
+
+@keyframes pulse-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(215, 35, 35, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px 8px rgba(215, 35, 35, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(215, 35, 35, 0);
+  }
+}
+
+.body-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.body-stat-details {
+    flex-grow: 1;
+    font-size: 0.9em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.body-stat-date {
+    font-weight: bold;
+    color: var(--primary-color);
+    min-width: 120px;
+}
+
+/* --- NEW: สไตล์สำหรับป้ายกำกับ (Tag) ของท่าบอดี้เวท --- */
+.tag-bodyweight {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--bg-color);
+    background-color: var(--success-color);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
